@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace CalendarBackend.Db;
 
-public partial class CalendarDevContext : DbContext
+public partial class CalendarDevContext : IdentityDbContext
 {
     public CalendarDevContext()
     {
@@ -155,6 +157,7 @@ public partial class CalendarDevContext : DbContext
             entity.Property(e => e.Name).HasColumnName("name");
         });
 
+		base.OnModelCreating(modelBuilder);
         OnModelCreatingPartial(modelBuilder);
     }
 
