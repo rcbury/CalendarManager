@@ -5,7 +5,6 @@ namespace CalendarBackend.Dto
     public class UserRegistrationDto
     {
         [Required]
-        [EmailAddress]
         public string UserName { get; set; } = null!;
 
         [Required]

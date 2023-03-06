@@ -6,7 +6,7 @@ namespace CalendarBackend.Services
 {
     public interface IAuthenticationService
     {
-        Task<UserDto> RegisterUserAsync(UserRegistrationDto userRegistrationData);
+        Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData);
     }
 
     public class JwtAuthenticationService : IAuthenticationService
@@ -22,7 +22,7 @@ namespace CalendarBackend.Services
             _signinManager = signInManager;
         }
 
-        async public Task<UserDto> RegisterUserAsync(UserRegistrationDto userRegistrationData)
+        async public Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData)
         {
             var newUser = new CalendarUser
             {
@@ -39,7 +39,11 @@ namespace CalendarBackend.Services
 				UserName = newUser.UserName,
 			};
 
-			return userDto;
+			if (result.Succeeded)
+				return userDto;
+			else
+				return null;
+
         }
     }
 }

@@ -20,13 +20,16 @@ namespace CalendarBackend.Controllers
         [HttpPost(Name = "Register a new user")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationData)
         {
+            Console.WriteLine("poel");
+            UserDto result = null;
+
             if (ModelState.IsValid)
             {
-                var result = await _authenticationService.RegisterUserAsync(registrationData);
+                result = await _authenticationService.RegisterUserAsync(registrationData);
             }
 
 
-            if (true)
+            if (result != null)
             {
                 Console.WriteLine("userCreated");
                 return new OkResult();
@@ -36,5 +39,14 @@ namespace CalendarBackend.Controllers
                 return new BadRequestResult();
             }
         }
+
+        [HttpGet()]
+        public IActionResult Test()
+        {
+            Console.WriteLine("poel");
+            return new OkResult();
+        }
+
+
     }
 }
