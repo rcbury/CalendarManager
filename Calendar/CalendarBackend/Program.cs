@@ -1,6 +1,5 @@
 using System.Text;
 using CalendarBackend.Db;
-using CalendarBackend.Identity.Entities;
 using CalendarBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -17,7 +16,7 @@ builder.Services.AddDbContext<CalendarDevContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
 builder.Services
-    .AddIdentity<CalendarUser, IdentityRole>(options =>
+    .AddIdentity<CalendarUser, CalendarUserRole>(options =>
         {
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;

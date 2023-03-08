@@ -9,9 +9,9 @@ class UserRepository
         _context = context;
     }
 
-    public User? GetUser(int id)
-    {
-        return _context.Users.Where(x => x.Id == id).FirstOrDefault();
-    }
+    /* public User? GetUser(int id) */
+    /* { */
+    /*     return _context.Users.Where(x => x.Id == id).FirstOrDefault(); */
+    /* } */
 
 }

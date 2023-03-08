@@ -46,7 +46,5 @@ namespace CalendarBackend.Controllers
             Console.WriteLine("poel");
             return new OkResult();
         }
-
-
     }
 }

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
 		<TargetFramework>netcoreapp7.0</TargetFramework>
-		<RuntimeFrameworkVersion>7.0.3</RuntimeFrameworkVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
