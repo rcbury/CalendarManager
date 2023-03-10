@@ -27,21 +27,21 @@ builder.Services
 
 builder.Services
     .AddAuthentication(auth =>
-		{
-			auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-			auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-		})
+        {
+            auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
     .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
-				ValidAudience = "url",
-				ValidIssuer = "url",
+                ValidAudience = "audience",
+                ValidIssuer = "issuer",
                 RequireExpirationTime = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret key")),
-                ValidateIssuerSigningKey = true
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("verylongsecretkey")),
+                ValidateIssuerSigningKey = true,
             };
         });
 
@@ -50,6 +50,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
+
 
 var app = builder.Build();
 
@@ -68,8 +69,8 @@ else
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

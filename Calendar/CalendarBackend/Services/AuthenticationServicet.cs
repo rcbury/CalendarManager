@@ -11,7 +11,7 @@ namespace CalendarBackend.Services
     public interface IAuthenticationService
     {
         Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData);
-        Task<UserDto>? Login(LoginDto loginData);
+        Task<LoginResponse>? Login(LoginDto loginData);
     }
 
     public class JwtAuthenticationService : IAuthenticationService
@@ -54,36 +54,45 @@ namespace CalendarBackend.Services
 
         }
 
-        async public Task<UserDto> Login(LoginDto loginData)
+        async public Task<LoginResponse>? Login(LoginDto loginData)
         {
             var user = await _userManager.FindByEmailAsync(loginData.Email);
 
             var passwordCheck = await _userManager.CheckPasswordAsync(user, loginData.Password);
 
-            if (passwordCheck)
+			Console.WriteLine(passwordCheck);
+
+            if (!passwordCheck)
             {
-                var claims = new[]
-                {
-                    new Claim("Email", user.Email),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-                };
-
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthSettings:Key"]));
-
-
-                var token = new JwtSecurityToken(
-                    issuer: _configuration["AuthSettings:Issuer"],
-                    audience: _configuration["AuthSettings:Audience"],
-                    claims: claims,
-                    expires: DateTime.Now.AddDays(30),
-					signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-                );
-
-				string tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+                return null;
             }
 
+            var claims = new[]
+            {
+                new Claim("Email", user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
 
+			//TODO: Place token settings into config file
 
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("verylongsecretkey"));
+
+            var token = new JwtSecurityToken(
+                issuer: "issuer",
+                audience: "audience",
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(10),
+                signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
+            );
+
+            string tokenAsString = new JwtSecurityTokenHandler().WriteToken(token);
+
+            var loginResponse = new LoginResponse
+            {
+                AccessToken = tokenAsString
+            };
+
+            return loginResponse;
         }
     }
 }
