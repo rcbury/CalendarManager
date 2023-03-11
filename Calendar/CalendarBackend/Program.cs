@@ -2,6 +2,7 @@ using System.Text;
 using CalendarBackend.Db;
 using CalendarBackend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,6 +45,19 @@ builder.Services
                 ValidateIssuerSigningKey = true,
             };
         });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "IsRoomAdmin",
+        policy => policy.Requirements.Add(new PermissionRequirement())
+    );
+
+});
+
+
+// add auth handlers
+builder.Services.AddScoped<IAuthorizationHandler, RoomAdminHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

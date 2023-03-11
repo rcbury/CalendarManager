@@ -47,7 +47,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpGet()]
-        [Authorize]
+        [Authorize(Policy = "IsRoomAdmin")]
         public IActionResult Test()
         {
             Console.WriteLine("poel");
