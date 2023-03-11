@@ -3,10 +3,10 @@ import colors from 'vuetify/es5/util/colors'
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: '%s - CalendarFrontend',
-    title: 'CalendarFrontend',
+    titleTemplate: '%s - Calendar',
+    title: 'Calendar',
     htmlAttrs: {
-      lang: 'en'
+      lang: 'ru'
     },
     meta: [
       { charset: 'utf-8' },
@@ -42,6 +42,7 @@ export default {
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
+    treeShake: false,
     customVariables: ['~/assets/variables.scss'],
     theme: {
       dark: true,
