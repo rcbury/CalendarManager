@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using CalendarBackend.Db.Initializers;
 
 namespace CalendarBackend.Db;
 
@@ -149,6 +150,7 @@ public partial class CalendarDevContext : IdentityDbContext<CalendarUser, Calend
         });
 
         OnModelCreatingPartial(modelBuilder);
+        new DevDbInitializer(modelBuilder).Seed();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

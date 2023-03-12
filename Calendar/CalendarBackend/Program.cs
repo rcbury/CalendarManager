@@ -50,7 +50,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(
         "IsRoomAdmin",
-        policy => policy.Requirements.Add(new PermissionRequirement())
+        policy => policy.Requirements.Add(new RoomAdminRequirement())
     );
 
 });
@@ -85,7 +85,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.Use((context, next) =>
+   {
+       context.Request.EnableBuffering();
+       return next();
+   });
 app.MapControllers();
 
 app.Run();
