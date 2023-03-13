@@ -26,13 +26,10 @@ namespace CalendarBackend.Controllers
         {
             LoginResponse result = null;
 
-            Console.WriteLine(ModelState.IsValid);
-
             if (ModelState.IsValid)
             {
                 result = await _authenticationService.Login(loginData);
             }
-
 
             if (result != null)
             {
@@ -47,12 +44,28 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpGet()]
-        [Authorize(Policy = "IsRoomAdmin")]
+        [Authorize]
         public IActionResult Test()
         {
             Console.WriteLine("poel");
             return new OkResult();
         }
+
+        [HttpPost]
+        [Route("token")]
+        [Authorize]
+        public async Task<IActionResult> RefreshAccesToken([FromBody] RefreshTokenDto accessTokenRefreshDto)
+        {
+            var newAccessToken = _authenticationService.RenewAccesToken(accessTokenRefreshDto.RefreshToken);
+
+            var accessTokenDto = new AccesTokenDto
+            {
+                AccessToken = newAccessToken
+            };
+
+            return Ok(accessTokenDto);
+        }
+
     }
 
 }

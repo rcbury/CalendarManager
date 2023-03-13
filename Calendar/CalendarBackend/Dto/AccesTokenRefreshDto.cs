@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace CalendarBackend.Dto;
 
-public class LoginResponse
+public class RefreshTokenDto
 {
-    public string AccessToken { get; set; } = null!;
+    [Required]
     public string RefreshToken { get; set; } = null!;
 }

@@ -13,6 +13,7 @@ namespace CalendarBackend.Services
     {
         Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData);
         Task<LoginResponse>? Login(LoginDto loginData);
+		string RenewAccesToken(string refreshToken);
     }
 
     public class JwtAuthenticationService : IAuthenticationService
@@ -61,17 +62,17 @@ namespace CalendarBackend.Services
 
             var passwordCheck = await _userManager.CheckPasswordAsync(user, loginData.Password);
 
-            Console.WriteLine(passwordCheck);
-
             if (!passwordCheck)
             {
                 return null;
             }
 
             var accessToken = GenerateJwtAccesToken(user.Email, user.Id.ToString());
+            var refreshToken = GenerateJwtRefreshToken(user.Email, user.Id.ToString());
 
             var loginResponse = new LoginResponse
             {
+				RefreshToken = refreshToken,
                 AccessToken = accessToken
             };
 
@@ -84,7 +85,7 @@ namespace CalendarBackend.Services
             {
                 new Claim("email", userEmail),
                 new Claim("userId", userId),
-                new Claim("type", JwtTokenTypes.Access)
+                new Claim("typ", JwtTokenTypes.Access)
             };
 
             //TODO: Place token settings into config file
@@ -93,7 +94,7 @@ namespace CalendarBackend.Services
 
             var token = new JwtSecurityToken(
                 issuer: "issuer",
-                audience: "audience",
+                audience: JwtTokenTypes.Access,
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(10),
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
@@ -110,8 +111,7 @@ namespace CalendarBackend.Services
             {
                 new Claim("email", userEmail),
                 new Claim("userId", userId),
-                new Claim("type", JwtTokenTypes.Refresh)
-
+                new Claim("typ", JwtTokenTypes.Refresh)
             };
 
             //TODO: Place token settings into config file
@@ -120,7 +120,7 @@ namespace CalendarBackend.Services
 
             var token = new JwtSecurityToken(
                 issuer: "issuer",
-                audience: "audience",
+                audience: JwtTokenTypes.Refresh,
                 claims: claims,
                 expires: DateTime.Now.AddDays(30),
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
@@ -131,43 +131,43 @@ namespace CalendarBackend.Services
             return tokenAsString;
         }
 
-        private string RenewAccesToken(string refreshToken)
+        public string RenewAccesToken(string refreshToken)
         {
-            var handler = new JwtSecurityTokenHandler();
-
-            var jwtToken = handler.ReadToken(refreshToken) as JwtSecurityToken;
+			var jwtToken = ValidateRefreshToken(refreshToken);
 
             if (jwtToken == null)
                 throw new Exception("Invalid token");
 
-            var tokenType = jwtToken.Claims.Where(x => x.Type == "type").FirstOrDefault();
+            var userId = jwtToken.Claims.First(x => x.Type == "userId");
+            var email = jwtToken.Claims.First(x => x.Type == "email");
 
-            if (tokenType == null)
-                throw new Exception("Invalid token");
-
-            if (tokenType.Value != JwtTokenTypes.Refresh)
-                throw new Exception("Invalid token");
-
-            var expirationDateSeconds = long.Parse(jwtToken.Claims.First(x => x.Type == "exp").Value);
-
-            var expirationDate = DateTimeOffset.FromUnixTimeSeconds(expirationDateSeconds);
-
-            if (expirationDate < DateTime.Now)
-            {
-                throw new Exception("refreshTokenExpired");
-            }
-
-            var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier);
-            var email = jwtToken.Claims.First(x => x.Type == "Email");
-
-			var newAccesToken = GenerateJwtAccesToken(email.Value, userId.Value);
+            var newAccesToken = GenerateJwtAccesToken(email.Value, userId.Value);
 
             return newAccesToken;
         }
 
-		private string ValidateRefreshToken(string refreshToken)
-		{
-			return "fasdfasd";
-		}
+        private JwtSecurityToken? ValidateRefreshToken(string refreshToken)
+        {
+            var jwtHandler = new JwtSecurityTokenHandler();
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidAudience = JwtTokenTypes.Refresh,
+                ValidIssuer = "issuer",
+                RequireExpirationTime = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("verylongsecretkey")),
+                ValidateIssuerSigningKey = true,
+            };
+
+            SecurityToken validatedToken = null;
+
+            var claimsPrincipal = jwtHandler.ValidateToken(refreshToken, tokenValidationParameters, out validatedToken);
+
+            var validatedJwtToken = validatedToken as JwtSecurityToken;
+
+			return validatedJwtToken;
+        }
     }
 }

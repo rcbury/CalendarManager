@@ -40,6 +40,8 @@ public class UserRoleService
             .Where(x => x.User.Id == userId)
             .Where(x => x.RoomId == roomId)
             .FirstOrDefault();
+		Console.WriteLine("UserRoom");
+		Console.WriteLine(userRoom==null);
 
         if (userRoom == null)
             return null;

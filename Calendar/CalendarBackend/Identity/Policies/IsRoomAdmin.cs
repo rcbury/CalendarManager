@@ -1,12 +1,11 @@
 using CalendarBackend.Db;
+using CalendarBackend.Identity.Requirements;
 using CalendarBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
 
-public class RoomAdminRequirement : IAuthorizationRequirement
-{
-}
+namespace CalendarBackend.Identity.Policies;
 
 public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
 {
@@ -33,43 +32,71 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
     {
         if (context.User == null)
         {
-            // no user authorized. Alternatively call context.Fail() to ensure a failure 
-            // as another handler for this requirement may succeed
+            context.Fail();
             return false;
         }
 
         var request = _httpContextAccessor.HttpContext.Request;
         var stream = new StreamReader(request.Body);
-        var body = stream.ReadToEnd();
+        var body = await stream.ReadToEndAsync();
 
-        var parsedJson = JObject.Parse(body);
+        if (body == null)
+        {
+            context.Fail();
+            return false;
+        }
 
-		var teamId = parsedJson.GetValue("TeamId");
+        JObject parsedJson = null;
 
-		if (teamId == null)
-		{
-			context.Fail();
-		}
+        try
+        {
+            parsedJson = JObject.Parse(body);
+        }
+        catch (Exception e)
+        {
+            context.Fail();
+            return false;
+        }
 
-        var teamIdValue = int.Parse(teamId.ToString());
+        if (parsedJson == null)
+        {
+            context.Fail();
+            return false;
+        }
+
+        var roomId = parsedJson.GetValue("RoomId");
+
+        if (roomId == null)
+        {
+            context.Fail();
+            return false;
+        }
+
+        var roomIdValue = int.Parse(roomId.ToString());
 
         var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
 
         if (user == null)
         {
-			context.Fail();
+            context.Fail();
             return false;
         }
 
-        var userRole = _userRoleService.GetUserRoomRole(user.Id, teamIdValue);
+        var userRole = await _userRoleService.GetUserRoomRole(user.Id, roomIdValue);
 
-        var permissionCheck = true;
-
-        if (permissionCheck)
+        if (userRole == null)
         {
-            context.Succeed(permissionRequirement);
+            context.Fail();
+            return false;
         }
 
-        return true;
+        if (userRole.Id == 1)
+        {
+            context.Succeed(permissionRequirement);
+            return true;
+        }
+
+        context.Fail();
+        return false;
     }
 }

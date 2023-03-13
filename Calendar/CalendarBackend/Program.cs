@@ -1,6 +1,9 @@
 using System.Text;
 using CalendarBackend.Db;
+using CalendarBackend.Identity.Policies;
+using CalendarBackend.Identity.Requirements;
 using CalendarBackend.Services;
+using CalendarBackend.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -38,7 +41,7 @@ builder.Services
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
-                ValidAudience = "audience",
+                ValidAudience = JwtTokenTypes.Access,
                 ValidIssuer = "issuer",
                 RequireExpirationTime = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("verylongsecretkey")),
@@ -64,6 +67,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
+builder.Services.AddScoped<UserRoleService, UserRoleService>();
 
 
 var app = builder.Build();

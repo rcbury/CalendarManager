@@ -2,6 +2,6 @@ namespace CalendarBackend.Utils;
 
 static class JwtTokenTypes
 {
-    public const string Access = "Access";
-    public const string Refresh = "Refresh";
+    public const string Access = "access";
+    public const string Refresh = "refresh";
 }

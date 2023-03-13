@@ -3,6 +3,7 @@ using System;
 using CalendarBackend.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CalendarBackend.Migrations
 {
     [DbContext(typeof(CalendarDevContext))]
-    partial class CalendarDevContextModelSnapshot : ModelSnapshot
+    [Migration("20230313041010_seed")]
+    partial class seed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,18 +173,6 @@ namespace CalendarBackend.Migrations
                         .HasName("rooms_pkey");
 
                     b.ToTable("rooms", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "room1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "room2"
-                        });
                 });
 
             modelBuilder.Entity("CalendarBackend.Db.RoomUser", b =>
