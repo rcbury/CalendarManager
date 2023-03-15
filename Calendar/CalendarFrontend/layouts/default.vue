@@ -1,18 +1,25 @@
 <template>
-  <v-app dark>
-    <NavigationDrawer/>
-    
-    <v-app-bar
-      :clipped-left="clipped"
-      fixed
-      app
-    >
-    </v-app-bar>
-    <v-main>
-      <v-container>
-        <Nuxt />
-      </v-container>
-    </v-main>
+  <v-app>
+    <div class="application-core" v-if="isAuthorization">
+      <NavigationDrawer/>
+      
+      <v-app-bar
+        :clipped-left="clipped"
+        fixed
+        app
+      >
+      </v-app-bar>
+      <v-main>
+        <v-container>
+          <Nuxt />
+        </v-container>
+      </v-main>
+    </div>
+
+
+    <div class="application-login" v-else>
+        <LoginForm/>
+    </div>
   </v-app>
 </template>
 
@@ -39,6 +46,21 @@ export default {
       miniVariant: false,
       title: 'Vuetify.js'
     }
-  }
+  },
+
+  computed: {
+    isAuthorization() {
+      return this.$store.state.authorization.isAuthorization;
+    }
+  },
 }
 </script>
+
+<style lang="scss">
+.application {
+  &-login {
+    height: 100%;
+    width: 100%;
+  }
+}
+</style>
