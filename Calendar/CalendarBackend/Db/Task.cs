@@ -17,5 +17,5 @@ public partial class Task
 
     public virtual Room Room { get; set; } = null!;
 
-    public virtual ICollection<User> Users { get; } = new List<User>();
+    public virtual ICollection<CalendarUser> Users { get; } = new List<CalendarUser>();
 }

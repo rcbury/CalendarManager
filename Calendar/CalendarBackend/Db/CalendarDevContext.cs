@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using CalendarBackend.Db.Initializers;
 
 namespace CalendarBackend.Db;
 
-public partial class CalendarDevContext : DbContext
+public partial class CalendarDevContext : IdentityDbContext<CalendarUser, CalendarUserRole, int>
 {
     public CalendarDevContext()
     {
@@ -23,8 +26,6 @@ public partial class CalendarDevContext : DbContext
 
     public virtual DbSet<Task> Tasks { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
-
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -33,6 +34,14 @@ public partial class CalendarDevContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<CalendarUser>(entity =>
+        {
+            entity.Property(e => e.FirstName).HasColumnName("first_name");
+            entity.Property(e => e.LastName).HasColumnName("last_name");
+        });
+
         modelBuilder.Entity<FileTask>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("file_tasks_pkey");
@@ -110,7 +119,7 @@ public partial class CalendarDevContext : DbContext
             entity.HasMany(d => d.Users).WithMany(p => p.Tasks)
                 .UsingEntity<Dictionary<string, object>>(
                     "TasksUser",
-                    r => r.HasOne<User>().WithMany()
+                    r => r.HasOne<CalendarUser>().WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("user_id"),
@@ -127,21 +136,6 @@ public partial class CalendarDevContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("users_pkey");
-
-            entity.ToTable("users");
-
-            entity.Property(e => e.Id)
-                .UseIdentityAlwaysColumn()
-                .HasColumnName("id");
-            entity.Property(e => e.Email).HasColumnName("email");
-            entity.Property(e => e.FirstName).HasColumnName("first_name");
-            entity.Property(e => e.LastName).HasColumnName("last_name");
-            entity.Property(e => e.Password).HasColumnName("password");
-            entity.Property(e => e.Username).HasColumnName("username");
-        });
 
         modelBuilder.Entity<UserRole>(entity =>
         {
@@ -156,6 +150,7 @@ public partial class CalendarDevContext : DbContext
         });
 
         OnModelCreatingPartial(modelBuilder);
+        new DevDbInitializer(modelBuilder).Seed();
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

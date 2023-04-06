@@ -13,7 +13,7 @@ public partial class RoomUser
 
     public virtual Room Room { get; set; } = null!;
 
-    public virtual User User { get; set; } = null!;
+    public virtual CalendarUser User { get; set; } = null!;
 
     public virtual UserRole UserRole { get; set; } = null!;
 }
