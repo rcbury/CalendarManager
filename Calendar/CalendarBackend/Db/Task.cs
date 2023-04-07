@@ -12,6 +12,9 @@ public partial class Task
     public string? Description { get; set; }
 
     public int RoomId { get; set; }
+    public DateTime DateStart { get; set; }
+    public DateTime DateEnd { get; set; }
+    public bool IgnoreTime { get; set; }
 
     public virtual ICollection<FileTask> FileTasks { get; } = new List<FileTask>();
 

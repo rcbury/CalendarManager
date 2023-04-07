@@ -9,6 +9,7 @@ public partial class CalendarUser : IdentityUser<int>
     public string? FirstName { get; set; }
 
     public string? LastName { get; set; }
+    public string? AvatarPath { get; set; }
 
     public virtual ICollection<RoomUser> RoomUsers { get; } = new List<RoomUser>();
 
