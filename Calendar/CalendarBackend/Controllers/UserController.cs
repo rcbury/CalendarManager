@@ -1,5 +1,7 @@
+using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using CalendarBackend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,17 +12,19 @@ namespace CalendarBackend.Controllers
     public class UserController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly UserManager<CalendarUser> _userManager;
 
         public UserController(
-            IAuthenticationService authenticationService)
+            IAuthenticationService authenticationService,
+            UserManager<CalendarUser> userManager)
         {
             _authenticationService = authenticationService;
+            _userManager = userManager;
         }
 
         [HttpPost(Name = "Register a new user")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationData)
         {
-            Console.WriteLine("poel");
             UserDto result = null;
 
             if (ModelState.IsValid)
@@ -40,11 +44,89 @@ namespace CalendarBackend.Controllers
             }
         }
 
-        [HttpGet()]
-        public IActionResult Test()
+        [HttpPut(Name = "Change profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserDto userData)
         {
-            Console.WriteLine("poel");
-            return new OkResult();
+            var authorizedUser = this.User;
+
+            var userId = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userId == null)
+                return new BadRequestResult();
+
+            Console.WriteLine(userId);
+            Console.WriteLine(authorizedUser);
+
+            var user = await _userManager.FindByIdAsync(userId.Value);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            user.FirstName = userData.FirstName;
+            user.LastName = userData.LastName;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return new BadRequestObjectResult(result.Errors);
+            }
+
+            var UserResponseDTO = new UserDto();
+            UserResponseDTO.LastName = user.LastName;
+            UserResponseDTO.FirstName = user.FirstName;
+            UserResponseDTO.UserName = user.UserName;
+            UserResponseDTO.Email = user.Email;
+
+            Console.WriteLine("user profile changed");
+
+            return new OkObjectResult(user);
+        }
+
+        [HttpGet]
+        [Route("/User/{userId}")]
+        public async Task<IActionResult> Get([FromRoute] int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (user == null)
+                return new BadRequestResult();
+
+
+            var UserResponseDTO = new UserDto();
+            UserResponseDTO.LastName = user.LastName;
+            UserResponseDTO.FirstName = user.FirstName;
+            UserResponseDTO.UserName = user.UserName;
+            UserResponseDTO.Email = user.Email;
+
+            return new OkObjectResult(UserResponseDTO);
+        }
+
+        [HttpGet]
+        [Route("/User/self")]
+		[Authorize]
+        public async Task<IActionResult> GetSelf()
+        {
+            var authorizedUser = this.User;
+
+            var userId = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userId == null)
+                return new BadRequestResult();
+
+            var user = await _userManager.FindByIdAsync(userId.Value);
+
+            if (user == null)
+                return new BadRequestResult();
+
+            var UserResponseDTO = new UserDto();
+            UserResponseDTO.LastName = user.LastName;
+            UserResponseDTO.FirstName = user.FirstName;
+            UserResponseDTO.UserName = user.UserName;
+            UserResponseDTO.Email = user.Email;
+
+            return new OkObjectResult(UserResponseDTO);
         }
     }
 }
