@@ -1,4 +1,3 @@
-
 using CalendarBackend.Dto;
 using CalendarBackend.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -24,31 +23,17 @@ namespace CalendarBackend.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResponse))]
         public async Task<IActionResult> Login([FromBody] LoginDto loginData)
         {
-            LoginResponse result = null;
+            var result = await _authenticationService.Login(loginData);
 
-            if (ModelState.IsValid)
+            if (result.Result)
             {
-                result = await _authenticationService.Login(loginData);
-            }
-
-            if (result != null)
-            {
-                Console.WriteLine("logged in");
-                Console.WriteLine(result.AccessToken);
-                return Ok(result);
+                return new OkObjectResult(result);
             }
             else
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(result);
             }
-        }
 
-        [HttpGet()]
-        [Authorize]
-        public IActionResult Test()
-        {
-            Console.WriteLine("poel");
-            return new OkResult();
         }
 
         [HttpPost]
@@ -63,7 +48,7 @@ namespace CalendarBackend.Controllers
                 AccessToken = newAccessToken
             };
 
-            return Ok(accessTokenDto);
+            return new OkObjectResult(accessTokenDto);
         }
 
     }

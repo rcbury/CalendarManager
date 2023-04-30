@@ -25,22 +25,18 @@ namespace CalendarBackend.Controllers
         [HttpPost(Name = "Register a new user")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationData)
         {
-            UserDto result = null;
+            RegistrationResponse result = null;
 
-            if (ModelState.IsValid)
+			result = await _authenticationService.RegisterUserAsync(registrationData);
+
+
+            if (result.Result)
             {
-                result = await _authenticationService.RegisterUserAsync(registrationData);
-            }
-
-
-            if (result != null)
-            {
-                Console.WriteLine("userCreated");
-                return new OkResult();
+                return new OkObjectResult(result);
             }
             else
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(result);
             }
         }
 
@@ -54,9 +50,6 @@ namespace CalendarBackend.Controllers
 
             if (userId == null)
                 return new BadRequestResult();
-
-            Console.WriteLine(userId);
-            Console.WriteLine(authorizedUser);
 
             var user = await _userManager.FindByIdAsync(userId.Value);
 
@@ -78,8 +71,6 @@ namespace CalendarBackend.Controllers
             UserResponseDTO.FirstName = user.FirstName;
             UserResponseDTO.UserName = user.UserName;
             UserResponseDTO.Email = user.Email;
-
-            Console.WriteLine("user profile changed");
 
             return new OkObjectResult(user);
         }
