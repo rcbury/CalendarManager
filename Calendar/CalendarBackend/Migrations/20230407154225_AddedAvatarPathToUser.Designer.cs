@@ -3,6 +3,7 @@ using System;
 using CalendarBackend.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CalendarBackend.Migrations
 {
     [DbContext(typeof(CalendarDevContext))]
-    partial class CalendarDevContextModelSnapshot : ModelSnapshot
+    [Migration("20230407154225_AddedAvatarPathToUser")]
+    partial class AddedAvatarPathToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,21 +223,9 @@ namespace CalendarBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CreatorId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("DateEnd")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("DateStart")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<bool>("IgnoreTime")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -247,8 +238,6 @@ namespace CalendarBackend.Migrations
 
                     b.HasKey("Id")
                         .HasName("tasks_pk");
-
-                    b.HasIndex("CreatorId");
 
                     b.HasIndex("RoomId");
 
@@ -448,12 +437,6 @@ namespace CalendarBackend.Migrations
 
             modelBuilder.Entity("CalendarBackend.Db.Task", b =>
                 {
-                    b.HasOne("CalendarBackend.Db.CalendarUser", "User")
-                        .WithMany("UsersTasks")
-                        .HasForeignKey("CreatorId")
-                        .IsRequired()
-                        .HasConstraintName("creator_id");
-
                     b.HasOne("CalendarBackend.Db.Room", "Room")
                         .WithMany("Tasks")
                         .HasForeignKey("RoomId")
@@ -461,8 +444,6 @@ namespace CalendarBackend.Migrations
                         .HasConstraintName("room_id");
 
                     b.Navigation("Room");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -534,8 +515,6 @@ namespace CalendarBackend.Migrations
             modelBuilder.Entity("CalendarBackend.Db.CalendarUser", b =>
                 {
                     b.Navigation("RoomUsers");
-
-                    b.Navigation("UsersTasks");
                 });
 
             modelBuilder.Entity("CalendarBackend.Db.Room", b =>
