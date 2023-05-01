@@ -12,13 +12,13 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
     private readonly CalendarDevContext _calendarDevContext;
     private readonly UserManager<CalendarUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly UserRoleService _userRoleService;
+    private readonly UserService _userRoleService;
 
     public RoomMemberHandler(
         CalendarDevContext calendarDevContext,
         UserManager<CalendarUser> userManager,
         IHttpContextAccessor httpContextAccessor,
-        UserRoleService userRoleService)
+        UserService userRoleService)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _userManager = userManager;
@@ -82,7 +82,7 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
             return false;
         }
 
-        var userRole = await _userRoleService.GetUserRoomRole(user.Id, roomIdValue);
+        var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
 
         if (userRole == null)
         {
