@@ -71,12 +71,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
 builder.Services.AddScoped<UserService, UserService>();
 builder.Services.AddScoped<ImageStorageService, ImageStorageService>();
+builder.Services.AddScoped<StaticFilesLinkCreator, StaticFilesLinkCreator>();
 
 
 var app = builder.Build();
 
 
 app.UseDefaultFiles();
+
+System.IO.Directory.CreateDirectory("StaticFiles/");
 app.UseStaticFiles(new StaticFileOptions
 {
 	FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "StaticFiles")),

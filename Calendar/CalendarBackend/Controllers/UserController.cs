@@ -14,15 +14,18 @@ namespace CalendarBackend.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly UserService _userService;
         private readonly UserManager<CalendarUser> _userManager;
+		private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
 
         public UserController(
             IAuthenticationService authenticationService,
             UserManager<CalendarUser> userManager,
-            UserService userService)
+            UserService userService,
+			StaticFilesLinkCreator staticFilesLinkCreator)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _userService = userService;
+			_staticFilesLinkCreator = staticFilesLinkCreator;
         }
 
         [HttpPost(Name = "Register a new user")]
@@ -87,6 +90,28 @@ namespace CalendarBackend.Controllers
 
         }
 
+        public async Task<IActionResult> GetAvatar()
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(userIdClaim.Value));
+
+
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
         [HttpGet]
         [Route("/User/{userId}")]
         public async Task<IActionResult> Get([FromRoute] int userId)
@@ -113,12 +138,12 @@ namespace CalendarBackend.Controllers
         {
             var authorizedUser = this.User;
 
-            var userId = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
 
-            if (userId == null)
+            if (userIdClaim == null)
                 return new BadRequestResult();
 
-            var user = await _userManager.FindByIdAsync(userId.Value);
+            var user = await _userManager.FindByIdAsync(userIdClaim.Value);
 
             if (user == null)
                 return new BadRequestResult();
@@ -128,8 +153,8 @@ namespace CalendarBackend.Controllers
             UserResponseDTO.FirstName = user.FirstName;
             UserResponseDTO.UserName = user.UserName;
             UserResponseDTO.Email = user.Email;
-			//TODO: Change path to file server link
-            UserResponseDTO.AvatarPath = user.AvatarPath;
+			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(user.Id.ToString()));
+            UserResponseDTO.AvatarPath = result;
 
             return new OkObjectResult(UserResponseDTO);
         }
