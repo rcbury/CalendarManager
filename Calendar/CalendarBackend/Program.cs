@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddDbContext<CalendarDevContext>(
 builder.Services
     .AddIdentity<CalendarUser, CalendarUserRole>(options =>
         {
+            options.User.RequireUniqueEmail = true;
             options.Password.RequireDigit = true;
             options.Password.RequireLowercase = true;
             options.Password.RequiredLength = 8;
@@ -67,23 +69,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
-builder.Services.AddScoped<UserRoleService, UserRoleService>();
+builder.Services.AddScoped<UserService, UserService>();
+builder.Services.AddScoped<ImageStorageService, ImageStorageService>();
 
 
 var app = builder.Build();
 
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseDefaultFiles();
+app.UseStaticFiles(new StaticFileOptions
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseDefaultFiles();
-    app.UseStaticFiles();
-}
+	FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "StaticFiles")),
+	RequestPath = "/Static"
+});
 
 app.UseHttpsRedirection();
 

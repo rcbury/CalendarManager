@@ -116,6 +116,11 @@ public partial class CalendarDevContext : IdentityDbContext<CalendarUser, Calend
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("room_id");
 
+            entity.HasOne(d => d.User).WithMany(u => u.UsersTasks)
+                .HasForeignKey(d => d.CreatorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("creator_id");
+
             entity.HasMany(d => d.Users).WithMany(p => p.Tasks)
                 .UsingEntity<Dictionary<string, object>>(
                     "TasksUser",

@@ -11,9 +11,9 @@ namespace CalendarBackend.Services
 {
     public interface IAuthenticationService
     {
-        Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData);
-        Task<LoginResponse>? Login(LoginDto loginData);
-		string RenewAccesToken(string refreshToken);
+        Task<RegistrationResponse> RegisterUserAsync(UserRegistrationDto userRegistrationData);
+        Task<LoginResponse> Login(LoginDto loginData);
+        string RenewAccesToken(string refreshToken);
     }
 
     public class JwtAuthenticationService : IAuthenticationService
@@ -32,39 +32,76 @@ namespace CalendarBackend.Services
             _configuration = configuration;
         }
 
-        async public Task<UserDto>? RegisterUserAsync(UserRegistrationDto userRegistrationData)
+        async public Task<RegistrationResponse> RegisterUserAsync(UserRegistrationDto userRegistrationData)
         {
             var newUser = new CalendarUser
             {
                 Email = userRegistrationData.Email,
                 UserName = userRegistrationData.UserName,
+				FirstName = userRegistrationData.FirstName,
+				LastName = userRegistrationData.LastName
             };
 
-
             var result = await _userManager.CreateAsync(newUser, userRegistrationData.Password);
+
+            if (!result.Succeeded)
+            {
+                return new RegistrationResponse
+                {
+                    UserDto = null,
+                    Errors = result.Errors,
+                    Result = result.Succeeded
+                };
+            }
 
             var userDto = new UserDto
             {
                 Email = newUser.Email,
                 UserName = newUser.UserName,
+                FirstName = newUser.FirstName,
+                LastName = newUser.LastName
             };
 
-            if (result.Succeeded)
-                return userDto;
-            else
-                return null;
-
+            return new RegistrationResponse
+            {
+                UserDto = userDto,
+                Errors = result.Errors,
+                Result = result.Succeeded
+            };
         }
 
-        async public Task<LoginResponse>? Login(LoginDto loginData)
+        async public Task<LoginResponse> Login(LoginDto loginData)
         {
             var user = await _userManager.FindByEmailAsync(loginData.Email);
 
-            var passwordCheck = await _userManager.CheckPasswordAsync(user, loginData.Password);
-
-            if (!passwordCheck)
+            if (user == null)
             {
-                return null;
+                var identityErrorDescriber = new IdentityErrorDescriber();
+                var errorList = new List<IdentityError>();
+
+                errorList.Add(identityErrorDescriber.InvalidEmail(loginData.Email));
+
+                return new LoginResponse
+                {
+                    Result = false,
+                    Errors = errorList
+                };
+            }
+
+            var loginResult = await _userManager.CheckPasswordAsync(user, loginData.Password);
+
+            if (!loginResult)
+            {
+                var identityErrorDescriber = new IdentityErrorDescriber();
+                var errorList = new List<IdentityError>();
+
+                errorList.Add(identityErrorDescriber.PasswordMismatch());
+
+                return new LoginResponse
+                {
+                    Result = false,
+                    Errors = errorList
+                };
             }
 
             var accessToken = GenerateJwtAccesToken(user.Email, user.Id.ToString());
@@ -72,8 +109,9 @@ namespace CalendarBackend.Services
 
             var loginResponse = new LoginResponse
             {
-				RefreshToken = refreshToken,
-                AccessToken = accessToken
+                Result = loginResult,
+                RefreshToken = refreshToken,
+                AccessToken = accessToken,
             };
 
             return loginResponse;
@@ -133,7 +171,7 @@ namespace CalendarBackend.Services
 
         public string RenewAccesToken(string refreshToken)
         {
-			var jwtToken = ValidateRefreshToken(refreshToken);
+            var jwtToken = ValidateRefreshToken(refreshToken);
 
             if (jwtToken == null)
                 throw new Exception("Invalid token");
@@ -167,7 +205,7 @@ namespace CalendarBackend.Services
 
             var validatedJwtToken = validatedToken as JwtSecurityToken;
 
-			return validatedJwtToken;
+            return validatedJwtToken;
         }
     }
 }

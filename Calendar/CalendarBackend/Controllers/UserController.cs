@@ -12,76 +12,79 @@ namespace CalendarBackend.Controllers
     public class UserController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
+        private readonly UserService _userService;
         private readonly UserManager<CalendarUser> _userManager;
 
         public UserController(
             IAuthenticationService authenticationService,
-            UserManager<CalendarUser> userManager)
+            UserManager<CalendarUser> userManager,
+            UserService userService)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
+            _userService = userService;
         }
 
         [HttpPost(Name = "Register a new user")]
         public async Task<IActionResult> Register([FromBody] UserRegistrationDto registrationData)
         {
-            UserDto result = null;
+            var result = await _authenticationService.RegisterUserAsync(registrationData);
 
-            if (ModelState.IsValid)
+            if (result.Result)
             {
-                result = await _authenticationService.RegisterUserAsync(registrationData);
+                return new OkObjectResult(result);
             }
-
-
-            if (result != null)
+            else
             {
-                Console.WriteLine("userCreated");
+                return new BadRequestObjectResult(result);
+            }
+        }
+
+        [HttpPut]
+        [Route("/User/self")]
+        [Authorize]
+        public async Task<IActionResult> Update([FromBody] UserDto userData)
+        {
+            var authorizedUser = this.User;
+
+            Console.WriteLine(userData);
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            var result = await _userService.UpdateUser(userData, int.Parse(userIdClaim.Value));
+
+            if (result.Result)
+                return new OkObjectResult(result);
+            else
+                return new BadRequestObjectResult(result);
+        }
+
+        [HttpPut(Name = "Change avatar")]
+        [Route("/User/self/avatar")]
+        [Authorize]
+        public async Task<IActionResult> UpdateAvatar([FromForm] IFormFile profilePicture)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            var result = await _userService.UpdateAvatar(int.Parse(userIdClaim.Value), profilePicture);
+
+            if (result)
+            {
                 return new OkResult();
             }
             else
             {
                 return new BadRequestResult();
             }
-        }
 
-        [HttpPut(Name = "Change profile")]
-        [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] UserDto userData)
-        {
-            var authorizedUser = this.User;
-
-            var userId = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
-
-            if (userId == null)
-                return new BadRequestResult();
-
-            Console.WriteLine(userId);
-            Console.WriteLine(authorizedUser);
-
-            var user = await _userManager.FindByIdAsync(userId.Value);
-
-            if (user == null)
-                throw new Exception("User not found");
-
-            user.FirstName = userData.FirstName;
-            user.LastName = userData.LastName;
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
-            {
-                return new BadRequestObjectResult(result.Errors);
-            }
-
-            var UserResponseDTO = new UserDto();
-            UserResponseDTO.LastName = user.LastName;
-            UserResponseDTO.FirstName = user.FirstName;
-            UserResponseDTO.UserName = user.UserName;
-            UserResponseDTO.Email = user.Email;
-
-            Console.WriteLine("user profile changed");
-
-            return new OkObjectResult(user);
         }
 
         [HttpGet]
@@ -105,7 +108,7 @@ namespace CalendarBackend.Controllers
 
         [HttpGet]
         [Route("/User/self")]
-		[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetSelf()
         {
             var authorizedUser = this.User;
@@ -125,6 +128,8 @@ namespace CalendarBackend.Controllers
             UserResponseDTO.FirstName = user.FirstName;
             UserResponseDTO.UserName = user.UserName;
             UserResponseDTO.Email = user.Email;
+			//TODO: Change path to file server link
+            UserResponseDTO.AvatarPath = user.AvatarPath;
 
             return new OkObjectResult(UserResponseDTO);
         }
