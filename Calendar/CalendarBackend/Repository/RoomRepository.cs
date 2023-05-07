@@ -12,6 +12,26 @@ class RoomRepository : IRoomRepository
         _context = context;
     }
 
+    public void AddUser(int roomId, int userId)
+    {
+        using (var transaction = _context.Database.BeginTransaction())
+        {
+            var dbRoom = _context.Rooms.Where(item => item.Id == roomId).FirstOrDefault();
+            if (dbRoom != null) 
+            {
+                var dbRoomUsers = new RoomUser
+                {
+                    RoomId = dbRoom.Id,
+                    UserId = userId,
+                    UserRoleId = 2
+                };
+                _context.Add(dbRoomUsers);
+                _context.SaveChanges();
+            }
+            transaction.Commit();
+        }
+    }
+
     public RoomDto Create(RoomDto room, CalendarUser? user)
     {
         using (var transaction = _context.Database.BeginTransaction())
@@ -69,6 +89,36 @@ class RoomRepository : IRoomRepository
             .FirstOrDefault();
         room = room == null ? new RoomDto { Id = 0, Name = "Not found" } : room;
         return room;
+    }
+
+    public bool ToggleAdmin(int roomId, int userId)
+    {
+        using (var transaction = _context.Database.BeginTransaction())
+        {
+            var dbRoom = _context.Rooms.Where(item => item.Id == roomId).FirstOrDefault();
+            if (dbRoom != null)
+            {
+                var roomUsers = _context.RoomUsers.Where(item => item.RoomId == dbRoom.Id && item.UserId == userId).FirstOrDefault();
+                if (roomUsers != null) 
+                {
+                    if (roomUsers.UserRoleId == 1)
+                    {
+                        roomUsers.UserRoleId = 2;
+                        _context.SaveChanges();
+                        transaction.Commit();
+                        return false;
+                    }
+                    else if (roomUsers.UserRoleId == 2) 
+                    {
+                        roomUsers.UserRoleId = 1;
+                        _context.SaveChanges();
+                        transaction.Commit();
+                        return true;
+                    }
+                } 
+            }
+        }
+        return false;
     }
 
     public RoomDto Update(RoomDto room)
