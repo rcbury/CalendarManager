@@ -49,41 +49,56 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
             return false;
         }
 
-		JObject parsedJson = null;
+		var roomIdValue = 0;
+		var userId = 0;
 
-        try
-        {
-            parsedJson = JObject.Parse(body);
-        }
-        catch (Exception e)
-        {
-            context.Fail();
-            return false;
-        }
+		if (request.HasJsonContentType()){
+			JObject parsedJson = null;
 
-		if (parsedJson == null)
-		{
-            context.Fail();
-            return false;
+			try
+			{
+				parsedJson = JObject.Parse(body);
+			}
+			catch (Exception e)
+			{
+				context.Fail();
+				return false;
+			}
+
+			if (parsedJson == null)
+			{
+				context.Fail();
+				return false;
+			}
+
+			var roomId = parsedJson.GetValue("RoomId");
+
+			if (roomId == null)
+			{
+				context.Fail();
+				return false;
+			}
+
+			roomIdValue = int.Parse(roomId.ToString());
+		} else {
+			try
+			{
+				roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
+			}
+			catch
+			{
+				context.Fail();
+				return false;
+			}
 		}
 
-        var roomId = parsedJson.GetValue("RoomId");
+		var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
 
-        if (roomId == null)
-        {
-            context.Fail();
-            return false;
-        }
-
-        var roomIdValue = int.Parse(roomId.ToString());
-
-        var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
-
-        if (user == null)
-        {
-            context.Fail();
-            return false;
-        }
+		if (user == null)
+		{
+			context.Fail();
+			return false;
+		}
 
         var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
 

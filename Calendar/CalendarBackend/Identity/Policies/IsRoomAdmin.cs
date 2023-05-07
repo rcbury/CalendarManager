@@ -37,7 +37,7 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
         }
 
         var request = _httpContextAccessor.HttpContext.Request;
-		request.EnableBuffering();
+        request.EnableBuffering();
 
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
@@ -50,43 +50,53 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
             return false;
         }
 
-        JObject parsedJson = null;
+        var roomIdValue = 0;
+        var userId = 0;
 
-        try
+        if (request.HasJsonContentType())
         {
-            parsedJson = JObject.Parse(body);
+            JObject parsedJson = null;
+
+            try
+            {
+                parsedJson = JObject.Parse(body);
+            }
+            catch (Exception e)
+            {
+                context.Fail();
+                return false;
+            }
+
+            if (parsedJson == null)
+            {
+                context.Fail();
+                return false;
+            }
+
+            var roomId = parsedJson.GetValue("RoomId");
+
+            if (roomId == null)
+            {
+                context.Fail();
+                return false;
+            }
+
+            roomIdValue = int.Parse(roomId.ToString());
         }
-        catch (Exception e)
+        else
         {
-            context.Fail();
-            return false;
+            try
+            {
+                roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
+            }
+            catch
+            {
+                context.Fail();
+                return false;
+            }
         }
 
-        if (parsedJson == null)
-        {
-            context.Fail();
-            return false;
-        }
-
-        var roomId = parsedJson.GetValue("RoomId");
-
-        if (roomId == null)
-        {
-            context.Fail();
-            return false;
-        }
-
-        var roomIdValue = int.Parse(roomId.ToString());
-
-        var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
-
-        if (user == null)
-        {
-            context.Fail();
-            return false;
-        }
-
-        var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
+        var userRole = await _userRoleService.GetUserRoleByRoom(userId, roomIdValue);
 
         if (userRole == null)
         {
