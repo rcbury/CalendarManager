@@ -13,11 +13,13 @@ namespace CalendarBackend.Controllers
     {
         private readonly IRoomRepository _roomRepository;
         private readonly UserService _userService;
+        private readonly InviteLinkTokenGeneratorService _inviteLinkTokenGeneratorService;
 
-        public RoomController(IRoomRepository roomRepository, UserService userService)
+        public RoomController(IRoomRepository roomRepository, UserService userService, InviteLinkTokenGeneratorService inviteLinkTokenGeneratorService)
         {
             _roomRepository = roomRepository;
             _userService = userService;
+            _inviteLinkTokenGeneratorService = inviteLinkTokenGeneratorService;
         }
 
         [HttpGet("all")]
@@ -49,6 +51,31 @@ namespace CalendarBackend.Controllers
         {
             var res = _roomRepository.Update(room);
             return Ok(res);
+        }
+
+        [HttpGet("{id}/inviteLink")]
+        [Authorize(Policy = "IsRoomAdmin")]
+        public async Task<IActionResult> GetInviteLink(int id)
+        {
+            var inviteToken = _inviteLinkTokenGeneratorService.GenerateRoomInviteToken(id);
+            var inviteUrl = _inviteLinkTokenGeneratorService.GetInviteLink(inviteToken, id);
+            return Ok(inviteUrl);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetInviteLink(int id, string token)
+        {
+
+            var tokenIsValid = _inviteLinkTokenGeneratorService.CheckToken(token, id);
+
+			if (tokenIsValid){
+
+				var user = _userService.GetUserByClaim(this.User);
+
+				//TODO: Roma big daddy
+			}
+            return Ok();
         }
 
         [HttpDelete("{id}")]
