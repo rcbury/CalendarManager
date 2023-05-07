@@ -84,6 +84,7 @@ builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
+builder.Services.AddScoped<InviteLinkTokenGeneratorService>();
 
 
 var app = builder.Build();
