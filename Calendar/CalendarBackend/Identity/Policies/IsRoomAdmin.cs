@@ -96,7 +96,15 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
             }
         }
 
-        var userRole = await _userRoleService.GetUserRoleByRoom(userId, roomIdValue);
+        var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
+
+        if (user == null)
+        {
+            context.Fail();
+            return false;
+        }
+
+        var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
 
         if (userRole == null)
         {

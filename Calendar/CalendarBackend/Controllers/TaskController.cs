@@ -62,7 +62,7 @@ namespace CalendarBackend.Controllers
         [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            _taskRepository.DeleteById(id);
+            _taskService.DeleteTask(id);
             return Ok();
         }
 
@@ -78,7 +78,7 @@ namespace CalendarBackend.Controllers
             if (userIdClaim == null)
                 return new BadRequestResult();
 
-            var fileDto = _taskService.UploadFile(id, file);
+            var fileDto = await _taskService.UploadFile(id, file);
 
             if (fileDto != null)
             {
