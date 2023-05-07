@@ -37,6 +37,8 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
         }
 
         var request = _httpContextAccessor.HttpContext.Request;
+		request.EnableBuffering();
+
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
 
