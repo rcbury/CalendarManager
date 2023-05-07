@@ -1,3 +1,3 @@
 export default () => ({
-    isAuthorization: false
+    isAuthorization: true
 })

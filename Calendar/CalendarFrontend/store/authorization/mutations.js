@@ -1,5 +1,5 @@
 export default {
     set(state, status) {
-        state = status;
+        state.isAuthorization = status;
     }
 }
