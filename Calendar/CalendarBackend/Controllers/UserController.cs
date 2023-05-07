@@ -65,8 +65,7 @@ namespace CalendarBackend.Controllers
                 return new BadRequestObjectResult(result);
         }
 
-        [HttpPut(Name = "Change avatar")]
-        [Route("/User/self/avatar")]
+        [HttpPut("/User/self/avatar")]
         [Authorize]
         public async Task<IActionResult> UpdateAvatar([FromForm] IFormFile profilePicture)
         {
@@ -88,28 +87,6 @@ namespace CalendarBackend.Controllers
                 return new BadRequestResult();
             }
 
-        }
-
-        public async Task<IActionResult> GetAvatar()
-        {
-            var authorizedUser = this.User;
-
-            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
-
-            if (userIdClaim == null)
-                return new BadRequestResult();
-
-			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(userIdClaim.Value));
-
-
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
         }
 
         [HttpGet]

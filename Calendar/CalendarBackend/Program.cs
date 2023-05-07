@@ -99,6 +99,10 @@ app.UseStaticFiles(new StaticFileOptions
 	RequestPath = "/Static"
 });
 
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
