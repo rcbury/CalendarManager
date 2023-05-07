@@ -62,19 +62,31 @@ namespace CalendarBackend.Controllers
             return Ok(inviteUrl);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/acceptInvite")]
         [Authorize]
-        public async Task<IActionResult> GetInviteLink(int id, string token)
+        public async Task<IActionResult> AddUserToRoomByLink(int id, string token)
         {
 
             var tokenIsValid = _inviteLinkTokenGeneratorService.CheckToken(token, id);
 
-			if (tokenIsValid){
+            if (tokenIsValid)
+            {
+                var user = await _userService.GetUserByClaim(this.User);
+                _roomRepository.AddUser(id, user.Id);
+                return Ok();
+            }
+            else 
+            {
+                return BadRequest();
+            }
+        }
 
-				var user = _userService.GetUserByClaim(this.User);
+        [HttpPut("{id}/ToggleAdmin")]
+        [Authorize]
+        public async Task<IActionResult> ToggleAdmin(int id, int userId)
+        {
 
-				//TODO: Roma big daddy
-			}
+            _roomRepository.ToggleAdmin(id, userId);
             return Ok();
         }
 
