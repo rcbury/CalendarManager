@@ -1,8 +1,8 @@
 <template>
   <v-row class="fill-height">
     <v-col>
-      <v-sheet height="95vh">
-        <CalendarSettings :type="type" @setToday="setToday" @prev="prev" @next="next" @changeType="changeType"/>
+      <v-sheet height="100vh">
+        <CalendarSettings @getCalendarName="getCalendarName" :type="type" @setToday="setToday" @prev="prev" @next="next" @changeType="changeType"/>
         <v-calendar
           ref="calendar"
           v-model="value"
@@ -76,9 +76,15 @@
       this.ready = true
       this.scrollToTime()
       this.updateTime()
+
+      this.$refs.calendar.title = "TestCalendar"
     },
 
     methods: {
+      getCalendarName() {
+        return this.$refs.calendar.title;
+      },
+
       changeType(type) {
         this.type = type;
       },

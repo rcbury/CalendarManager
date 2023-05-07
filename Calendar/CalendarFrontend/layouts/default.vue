@@ -3,19 +3,12 @@
     <div class="application-core" v-if="isAuthorization">
       <NavigationDrawer/>
       
-      <v-app-bar
-        :clipped-left="clipped"
-        fixed
-        app
-      >
-      </v-app-bar>
       <v-main>
         <v-container>
           <Nuxt />
         </v-container>
       </v-main>
     </div>
-
 
     <div class="application-login" v-else>
         <LoginForm/>

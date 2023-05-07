@@ -25,7 +25,7 @@
             </v-icon>
           </v-btn>
           <v-toolbar-title v-if="$refs.calendar">
-            {{ $refs.calendar.title }}
+            {{ $emit('getCalendarName') }}
           </v-toolbar-title>
           <v-spacer></v-spacer>
           <v-menu

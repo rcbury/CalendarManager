@@ -2,9 +2,16 @@
     <v-navigation-drawer
       v-model="drawer"
       permanent
-      width="15%"
+      width="15vw"
       app
     >
+      <div class="application-navigation-info">
+        <v-avatar
+          :color=stringToColor(this.$store.state.user.userName)
+          size="45"
+        >{{ this.$store.state.user.userName.at(0) }}</v-avatar>
+        <div class="application-navigation-info__username">{{ this.$store.state.user.userName }}</div>
+      </div>
       <v-list>
         <v-list-item
           v-for="(item, i) in items"
@@ -40,13 +47,13 @@ export default {
       items: [
         {
           icon: 'mdi-apps',
-          title: 'Welcome',
+          title: 'Main menu',
           to: '/'
         },
         {
           icon: 'mdi-chart-bubble',
-          title: 'Inspire',
-          to: '/inspire'
+          title: 'Rooms',
+          to: '/rooms'
         }
       ],
     }
@@ -56,6 +63,21 @@ export default {
      toggleDarkTheme() {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
         localStorage.setItem('DarkMode', this.$vuetify.theme.dark)
+    },
+
+    stringToColor(str) {
+      var hash = 0;
+      for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+
+      var colour = '#';
+      for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 0xFF;
+        colour += ('00' + value.toString(16)).substr(-2);
+      }
+      
+      return colour;
     }
   },
 
@@ -70,11 +92,31 @@ export default {
 </script>
 
 <style lang="scss">
+.application-navigation {
+  &-info {
+    margin-top: 3vh;
+    display: flex;
+    justify-content: center;
+    gap: 1vh;
+  
+    &__username {
+      width: 70%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
 .v-navigation-drawer__content {
     button {
         bottom: 10px;
         left: 10px;
         position: absolute;
+    }
+
+    .v-list {
+      margin-top: 10vh;
     }
 }
 </style>
