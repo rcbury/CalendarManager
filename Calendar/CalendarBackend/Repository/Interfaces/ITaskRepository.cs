@@ -1,4 +1,5 @@
-﻿using CalendarBackend.Dto;
+﻿using CalendarBackend.Db;
+using CalendarBackend.Dto;
 using System.Runtime.InteropServices;
 
 namespace CalendarBackend.Repository.Interfaces
@@ -8,7 +9,7 @@ namespace CalendarBackend.Repository.Interfaces
         public List<TaskDto> GetAll(int roomId);
         public TaskDto GetById(int id);
         public TaskDto Update(TaskDto dto);
-        public TaskDto Create(TaskDto dto);
+        public TaskDto Create(TaskDto dto, CalendarUser user);
         public void DeleteById(int id);
     }
 }

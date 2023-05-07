@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.FileProviders;
+using CalendarBackend.Repository.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<CalendarDevContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+
+Console.WriteLine(builder.Configuration.GetConnectionString("Database"));
 
 builder.Services
     .AddIdentity<CalendarUser, CalendarUserRole>(options =>
@@ -57,6 +60,10 @@ builder.Services.AddAuthorization(options =>
         "IsRoomAdmin",
         policy => policy.Requirements.Add(new RoomAdminRequirement())
     );
+    options.AddPolicy(
+        "IsRoomMember",
+        policy => policy.Requirements.Add(new RoomMemberRequirement())
+    );
 
 });
 
@@ -72,6 +79,11 @@ builder.Services.AddScoped<IAuthenticationService, JwtAuthenticationService>();
 builder.Services.AddScoped<UserService, UserService>();
 builder.Services.AddScoped<ImageStorageService, ImageStorageService>();
 builder.Services.AddScoped<StaticFilesLinkCreator, StaticFilesLinkCreator>();
+builder.Services.AddScoped<FileStorageService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 
 
 var app = builder.Build();

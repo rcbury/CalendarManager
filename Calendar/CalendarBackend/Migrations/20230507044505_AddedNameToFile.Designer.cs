@@ -3,6 +3,7 @@ using System;
 using CalendarBackend.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CalendarBackend.Migrations
 {
     [DbContext(typeof(CalendarDevContext))]
-    partial class CalendarDevContextModelSnapshot : ModelSnapshot
+    [Migration("20230507044505_AddedNameToFile")]
+    partial class AddedNameToFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -168,9 +171,6 @@ namespace CalendarBackend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -185,13 +185,11 @@ namespace CalendarBackend.Migrations
                         new
                         {
                             Id = 1,
-                            AuthorId = 0,
                             Name = "room1"
                         },
                         new
                         {
                             Id = 2,
-                            AuthorId = 0,
                             Name = "room2"
                         });
                 });

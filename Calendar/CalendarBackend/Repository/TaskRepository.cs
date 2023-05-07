@@ -12,7 +12,7 @@ class TaskRepository : ITaskRepository
         _context = context;
     }
 
-    public TaskDto Create(TaskDto task)
+    public TaskDto Create(TaskDto task, CalendarUser user)
     {
         using (var transaction = _context.Database.BeginTransaction())
         {
@@ -24,7 +24,7 @@ class TaskRepository : ITaskRepository
                 DateStart = task.DateStart,
                 DateEnd = task.DateEnd,
                 IgnoreTime = task.IgnoreTime,
-                CreatorId = task.CreatorId
+                CreatorId = user.Id
             };
             _context.Tasks.Add(dbTask);
             _context.SaveChanges();
@@ -41,8 +41,6 @@ class TaskRepository : ITaskRepository
             var dbTask = _context.Tasks.Where(task => task.Id == id).FirstOrDefault();
             if (dbTask != null)
             {
-                var files = _context.FileTasks.Where(ft => ft.TaskId == dbTask.Id);
-                _context.FileTasks.RemoveRange(files);
                 _context.Tasks.Remove(dbTask);
                 _context.SaveChanges();
                 transaction.Commit();
