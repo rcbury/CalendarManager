@@ -3,8 +3,9 @@
         <div class="application-login-form">
             <h1 class="application-login-form__title">Календарь 3000</h1>
             <transition name="fade" mode="out-in">
-                <LoginAuthorization :toggleForm="toggleForm" v-if="isAuthorizationForm"/>
-                <LoginRegistration :toggleForm="toggleForm" v-else/>
+                <LoginAuthorization @changeForm="changeForm" v-if="authorizationFormType === 'login'"/>
+                <LoginRegistration @changeForm="changeForm" v-if="authorizationFormType === 'register'" />
+                <LoginForgoutPassword @changeForm="changeForm" v-else />
             </transition>
         </div>
     </div>
@@ -13,12 +14,12 @@
 <script>
 export default {
     data: () => ({
-        isAuthorizationForm: true
+        authorizationFormType: 'login'
     }),
 
     methods: {
-      toggleForm() {
-        this.isAuthorizationForm = !this.isAuthorizationForm;
+        changeForm(state) {
+            this.authorizationFormType = state;
       }
     },
   }

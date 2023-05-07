@@ -28,8 +28,11 @@
                 </v-btn>
             </div>
 
-            <v-btn class="mt-4" @click="toggleForm()">
-                Registration
+            <v-btn class="mt-4" @click="$emit('changeForm', 'register')">
+              Registration
+            </v-btn>
+            <v-btn class="mt-4 flex" color="info" @click="$emit('changeForm', 'forgout')">
+              Forgot your password?
             </v-btn>
         </v-form>
     </div>
@@ -37,8 +40,6 @@
 
 <script>
 export default {
-    props: ["toggleForm"],
-
     data: () => ({
       loginField: 'test',
       passwordField: 'test',
@@ -56,7 +57,9 @@ export default {
     methods: {
       async validate  () {
         const valid = await this.$refs.form.validate()
-        if (valid) alert('Form is valid')
+        if (valid) {
+          this.$store.commit('authorization/set', true);
+        }
       },
 
       reset () {

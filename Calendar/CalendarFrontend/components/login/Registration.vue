@@ -43,7 +43,7 @@
             </v-btn>
         </div>
 
-        <v-btn class="mt-4" @click="toggleForm()">
+        <v-btn class="mt-4" @click="$emit('changeForm', 'login')">
             Authorization
         </v-btn>    
     </div>
@@ -51,8 +51,6 @@
 
 <script>
 export default {
-    props: ["toggleForm"],
-
     data: () => ({
       loginField: '',
       passwordField: '',
