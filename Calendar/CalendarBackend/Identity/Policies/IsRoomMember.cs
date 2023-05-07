@@ -41,6 +41,8 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
         var stream = new StreamReader(request.Body);
         var body = await stream.ReadToEndAsync();
 
+        request.Body.Position = 0;
+
         if (body == null)
         {
             context.Fail();

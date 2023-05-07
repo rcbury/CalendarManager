@@ -3,7 +3,7 @@ using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
 using Microsoft.AspNetCore.StaticFiles;
 
-class RoomRepository : ICRUDRepository<RoomDto>
+class RoomRepository : IRoomRepository
 {
     private readonly CalendarDevContext _context;
 
@@ -12,15 +12,24 @@ class RoomRepository : ICRUDRepository<RoomDto>
         _context = context;
     }
 
-    public RoomDto Create(RoomDto room)
+    public RoomDto Create(RoomDto room, CalendarUser? user)
     {
         using (var transaction = _context.Database.BeginTransaction())
         {
             var dbRoom = new Room()
             {
-                Name = room.Name
+                Name = room.Name,
+                AuthorId = user.Id
             };
-            _context.Rooms.Add(dbRoom);
+            _context.Add(dbRoom);
+            _context.SaveChanges();
+            var dbRoomUsers = new RoomUser
+            {
+                RoomId = dbRoom.Id,
+                UserId = user.Id,
+                UserRoleId = 1
+            };
+            _context.Add(dbRoomUsers);
             _context.SaveChanges();
             transaction.Commit();
             var dto = new RoomDto { Id = dbRoom.Id, Name = dbRoom.Name };

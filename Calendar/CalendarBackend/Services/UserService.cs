@@ -1,6 +1,8 @@
 using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CalendarBackend.Services;
 
@@ -95,5 +97,18 @@ public class UserService
             Result = true,
             Errors = result.Errors
         };
+    }
+
+    public async Task<CalendarUser?> GetUserByClaim(ClaimsPrincipal? authorizedUserClaim) 
+    {
+
+        var userIdClaim = authorizedUserClaim.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+        if (userIdClaim == null)
+            return null;
+
+        var user = await _userManager.FindByIdAsync(userIdClaim.Value);
+
+        return user;
     }
 }

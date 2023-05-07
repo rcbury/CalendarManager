@@ -9,6 +9,7 @@ public partial class FileTask
 
     public int TaskId { get; set; }
 
+    public string Name { get; set; } = null!;
     public string FilePath { get; set; } = null!;
 
     public virtual Task Task { get; set; } = null!;
