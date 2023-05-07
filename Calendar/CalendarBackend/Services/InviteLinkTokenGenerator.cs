@@ -70,16 +70,15 @@ public class InviteLinkTokenGeneratorService
 
         var timestampNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-        var tokenDatetime = DateTime.Parse(tokenTimestamp.ToString());
-        var nowDatetime = DateTime.Parse(timestampNow.ToString());
+        var tokenDatetime = DateTimeOffset.FromUnixTimeSeconds(tokenTimestamp).DateTime;
+        var nowDatetime = DateTimeOffset.FromUnixTimeSeconds(timestampNow).DateTime;
 
-
-        if ((nowDatetime - tokenDatetime).Seconds < LinkTimeoutSeconds)
+        if ((nowDatetime - tokenDatetime).TotalSeconds < LinkTimeoutSeconds)
         {
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     public string? GetInviteLink(string token, int roomId)
@@ -87,7 +86,7 @@ public class InviteLinkTokenGeneratorService
 		//probably move this to env variable
 		var baseUrl = "https://localhost:7132";
 
-		var inviteUrl = $"{baseUrl}/Room/{roomId}?inviteToken={token}";
+		var inviteUrl = $"{baseUrl}/Room/{roomId}/acceptInvite?token={token}";
 
 		return inviteUrl;
     }
