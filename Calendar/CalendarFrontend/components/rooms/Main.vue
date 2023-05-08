@@ -1,7 +1,9 @@
 <template>
-  <div class="application-rooms">
-    <RoomsCreate @addRooms="addRooms" />
-    <RoomsList :roomsList="roomsList" />
+  <div class="application-rooms__container">
+    <div class="application-rooms">
+      <RoomsCreate @addRooms="addRooms" />
+      <RoomsList :roomsList="roomsList" />
+    </div>
   </div>
 </template>
 
@@ -33,17 +35,17 @@ export default {
 </script>
 
 <style lang="scss">
-.v-main__wrap {
-  .container {
-    margin-top: 10%;
-    width: 70%;
-  }
-}
-
 .application {
   &-rooms v-card {
     grid-template-rows: 1fr;
+    width: 70%;
     margin-top: 3vh;
+  }
+
+  &-rooms__container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10%;
   }
 }
 
