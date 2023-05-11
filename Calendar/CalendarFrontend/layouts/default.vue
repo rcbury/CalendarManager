@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <div class="application-core" v-if="isAuthorization">
+    <div class="application-core" v-if="$auth.loggedIn">
       <NavigationDrawer/>
-      
+
       <v-main>
         <v-container>
           <Nuxt />

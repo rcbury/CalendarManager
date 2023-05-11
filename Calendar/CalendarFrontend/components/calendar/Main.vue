@@ -92,7 +92,7 @@
       setToday () {
         this.focus = ''
       },
-      
+
       prev () {
         this.$refs.calendar.prev()
       },

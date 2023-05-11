@@ -5,13 +5,13 @@
       width="15vw"
       app
     >
-      <div class="application-navigation-info">
+    <div v-if="$auth.loggedIn" class="application-navigation-info">
         <v-avatar
-          :color=stringToColor(this.$store.state.user.userName)
+          :color=stringToColor(this.$auth.user?.userName)
           size="45"
-        >{{ this.$store.state.user.userName.at(0) }}</v-avatar>
-        <div class="application-navigation-info__username">{{ this.$store.state.user.userName }}</div>
-      </div>
+        >{{ this.$auth.user.userName.at(0) }}</v-avatar>
+        <div class="application-navigation-info__username">{{ this.$auth.user.userName }}</div>
+    </div>
       <v-list>
         <v-list-item
           v-for="(item, i) in items"
@@ -66,6 +66,10 @@ export default {
     },
 
     stringToColor(str) {
+      if (!str) {
+        return "#FFFFFF"
+      }
+
       var hash = 0;
       for (var i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -76,7 +80,7 @@ export default {
         var value = (hash >> (i * 8)) & 0xFF;
         colour += ('00' + value.toString(16)).substr(-2);
       }
-      
+
       return colour;
     }
   },
@@ -98,7 +102,7 @@ export default {
     display: flex;
     justify-content: center;
     gap: 1vh;
-  
+
     &__username {
       width: 70%;
       display: flex;
