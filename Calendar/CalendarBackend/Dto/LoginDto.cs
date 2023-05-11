@@ -10,10 +10,6 @@ public class LoginDto
 	public string Email {get; set;} = null!;
 
 	[Required]
-	[StringLength(50)]
-    public string UserName { get; set; } = null!;
-
-	[Required]
 	[StringLength(50, MinimumLength = 5)]
     public string Password { get; set; } = null!;
 }

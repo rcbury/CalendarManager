@@ -67,6 +67,17 @@ builder.Services.AddAuthorization(options =>
 
 });
 
+var CorsAllowedOrigins = "*";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: CorsAllowedOrigins, policy =>
+    {
+        policy.AllowAnyOrigin();
+		policy.AllowAnyHeader();
+		policy.AllowAnyMethod();
+    });
+});
+
 
 // add auth handlers
 builder.Services.AddScoped<IAuthorizationHandler, RoomAdminHandler>();
@@ -95,13 +106,15 @@ app.UseDefaultFiles();
 System.IO.Directory.CreateDirectory("StaticFiles/");
 app.UseStaticFiles(new StaticFileOptions
 {
-	FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "StaticFiles")),
-	RequestPath = "/Static"
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "StaticFiles")),
+    RequestPath = "/Static"
 });
 
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors(CorsAllowedOrigins);
 
 app.UseHttpsRedirection();
 
