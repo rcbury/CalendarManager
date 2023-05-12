@@ -275,9 +275,6 @@
   }
 }
 
-.v-sheet::-webkit-scrollbar {
-  width: 0;
-}
 
 .col {
   .v-sheet {

@@ -22,10 +22,12 @@ namespace CalendarBackend.Controllers
             _inviteLinkTokenGeneratorService = inviteLinkTokenGeneratorService;
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllRooms() 
+        [HttpGet]
+		[Authorize]
+        public async Task<IActionResult> GetUserRooms()
         {
-            var rooms = _roomRepository.GetAll();
+            var user = await _userService.GetUserByClaim(this.User);
+            var rooms = _roomRepository.GetByUser(user.Id);
             return Ok(rooms);
         }
 
@@ -75,7 +77,7 @@ namespace CalendarBackend.Controllers
                 _roomRepository.AddUser(id, user.Id);
                 return Ok();
             }
-            else 
+            else
             {
                 return BadRequest();
             }

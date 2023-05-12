@@ -8,6 +8,7 @@ namespace CalendarBackend.Repository.Interfaces
     {
         public List<RoomDto> GetAll();
         public RoomDto GetById(int id);
+        public List<RoomDto> GetByUser(int userId);
         public RoomDto Update(RoomDto dto);
         public RoomDto Create(RoomDto dto, CalendarUser? user);
         public bool ToggleAdmin(int roomId, int userId);

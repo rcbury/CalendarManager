@@ -1,6 +1,7 @@
 using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
 
 class RoomRepository : IRoomRepository
@@ -89,6 +90,16 @@ class RoomRepository : IRoomRepository
             .FirstOrDefault();
         room = room == null ? new RoomDto { Id = 0, Name = "Not found" } : room;
         return room;
+    }
+
+    public List<RoomDto> GetByUser(int userId)
+    {
+        var rooms = _context.Rooms.Include(room => room.RoomUsers)
+            .Where(item => item.RoomUsers.Any(x => x.UserId == userId))
+            .Select(item => new RoomDto {Id = item.Id, Name = item.Name})
+            .ToList();
+
+        return rooms;
     }
 
     public bool ToggleAdmin(int roomId, int userId)

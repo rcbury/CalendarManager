@@ -28,8 +28,8 @@
 <script>
 export default {
   data: () => ({
-    loginField: '',
-    passwordField: '',
+    loginField: 'test@test.test',
+    passwordField: 'Testtest123!',
 
     loginRules: [
       (v) => !!v || 'Login is required',
@@ -59,7 +59,7 @@ export default {
     },
 
     async test() {
-      console.log(this.$auth.logout())
+      console.log(await this.$auth.logout())
     },
 
     reset() {

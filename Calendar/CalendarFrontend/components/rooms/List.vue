@@ -7,15 +7,16 @@
     <v-list rounded>
       <v-subheader>List Rooms</v-subheader>
       <v-list-item-group
-        v-model="selectedItem"
+        v-model="selectedRoom"
         color="primary"
       >
         <v-list-item
-          v-for="(item, i) in roomsList"
-          :key="i"
+          v-for="(room, i) in roomsList"
+          :key="room.id"
+          @click="() => onSelect(roomId)"
         >
           <v-list-item-content>
-            <v-list-item-title v-text="item.name"></v-list-item-title>
+            <v-list-item-title v-text="room.name"></v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list-item-group>
@@ -25,7 +26,35 @@
 
 <script>
 export default {
-    props: ["roomsList"]
+  props: ["roomsList"],
+  data(){
+    console.log(this.$store.state.activeRoom.id)
+    return {
+      selectedRoom: this.$store.state.activeRoom.id
+    }
+  },
+  methods: {
+    onSelect(roomId) {
+      this.$store.commit("activeRoom/setId", roomId)
+      console.log(this.selectedRoom)
+    //  this.selectedRoom = this.$store.state.activeRoom.id
+    },
+
+    isActive(roomId) {
+      console.log(roomId)
+      const currentSelectedRoom = this.$store.state.activeRoom.id
+      console.log(roomId === currentSelectedRoom)
+      return roomId === currentSelectedRoom
+    },
+  },
+  computed: {
+    
+  },
+
+  mounted () {
+    console.log('value on mount: ' + this.$store.state.activeRoom.id)
+    this.selectedRoom = this.$store.state.activeRoom.id
+  }
 }
 </script>
 
