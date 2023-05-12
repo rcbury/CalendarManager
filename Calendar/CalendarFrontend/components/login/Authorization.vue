@@ -28,8 +28,8 @@
 <script>
 export default {
   data: () => ({
-    loginField: '',
-    passwordField: '',
+    loginField: 'Pidaras2@gmail.com',
+    passwordField: 'Ya_Lublu_Zhr6t_G0vn0',
 
     loginRules: [
       (v) => !!v || 'Login is required',

@@ -18,6 +18,7 @@
           @mousemove:time="mouseMove"
           @mouseup:time="endDrag"
           @mouseleave.native="cancelDrag"
+          @click:event="openTask"
         >
           <template v-slot:event="{ event, timed, eventSummary }">
             <div class="v-event-draggable">
@@ -40,6 +41,7 @@
         </v-calendar>
       </v-sheet>
     </v-col>
+    <TasksView :isTaskOpen="isTaskOpen" @closeTask="closeTask" />
   </v-row>
 </template>
 
@@ -56,7 +58,8 @@
       createStart: null,
       extendOriginal: null,
       ready: false,
-      type: "week"
+      type: "week",
+      isTaskOpen: false
     }),
 
     created() {
@@ -250,6 +253,14 @@
       rndElement (arr) {
         return arr[this.rnd(0, arr.length - 1)]
       },
+      openTask(event) 
+      {
+        this.isTaskOpen = true;
+      },
+      closeTask(event) 
+      {
+        this.isTaskOpen = false;
+      }
     },
   }
 </script>
