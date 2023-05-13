@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using CalendarBackend.Db;
 using CalendarBackend.Identity.Requirements;
 using CalendarBackend.Services;
@@ -32,73 +33,91 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
     {
         if (context.User == null)
         {
-			context.Fail();
-            return false;
-        }
-
-        var request = _httpContextAccessor.HttpContext.Request;
-		request.EnableBuffering();
-        var stream = new StreamReader(request.Body);
-        var body = await stream.ReadToEndAsync();
-
-        request.Body.Position = 0;
-
-        if (body == null)
-        {
             context.Fail();
             return false;
         }
 
-		var roomIdValue = 0;
-		var userId = 0;
+        var request = _httpContextAccessor.HttpContext.Request;
 
-		if (request.HasJsonContentType()){
-			JObject parsedJson = null;
+        var roomIdValue = 0;
 
-			try
-			{
-				parsedJson = JObject.Parse(body);
-			}
-			catch (Exception e)
-			{
-				context.Fail();
-				return false;
-			}
+        var roomIdRegexMatch = Regex.Match(request.Path.Value, @"(Room\/)[0-9]+(\/|$)");
 
-			if (parsedJson == null)
-			{
-				context.Fail();
-				return false;
-			}
+        if (roomIdRegexMatch.Success)
+        {
+			Console.WriteLine(int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray())));
+            roomIdValue = int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray()));
+        }
 
-			var roomId = parsedJson.GetValue("RoomId");
+        var userId = 0;
 
-			if (roomId == null)
-			{
-				context.Fail();
-				return false;
-			}
 
-			roomIdValue = int.Parse(roomId.ToString());
-		} else {
-			try
-			{
-				roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
-			}
-			catch
+        if (!roomIdRegexMatch.Success)
+        {
+			request.EnableBuffering();
+			var stream = new StreamReader(request.Body);
+			var body = await stream.ReadToEndAsync();
+
+			request.Body.Position = 0;
+
+			if (body == null)
 			{
 				context.Fail();
 				return false;
 			}
-		}
 
-		var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
+            if (request.HasJsonContentType())
+            {
+                JObject parsedJson = null;
 
-		if (user == null)
-		{
-			context.Fail();
-			return false;
-		}
+                try
+                {
+                    parsedJson = JObject.Parse(body);
+                }
+                catch (Exception e)
+                {
+                    context.Fail();
+                    return false;
+                }
+
+                if (parsedJson == null)
+                {
+                    context.Fail();
+                    return false;
+                }
+
+                var roomId = parsedJson.GetValue("RoomId");
+
+                if (roomId == null)
+                {
+                    context.Fail();
+                    return false;
+                }
+
+                roomIdValue = int.Parse(roomId.ToString());
+            }
+            else
+            {
+                try
+                {
+                    roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
+                }
+                catch
+                {
+                    context.Fail();
+                    return false;
+                }
+            }
+        }
+
+
+        var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
+
+        if (user == null)
+        {
+            context.Fail();
+            return false;
+        }
 
         var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
 
@@ -107,8 +126,7 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
             context.Fail();
             return false;
         }
-
-        if (userRole.Id == 2)
+        else
         {
             context.Succeed(permissionRequirement);
             return true;

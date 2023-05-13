@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using CalendarBackend.Db;
 using CalendarBackend.Identity.Requirements;
 using CalendarBackend.Services;
@@ -37,62 +38,75 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
         }
 
         var request = _httpContextAccessor.HttpContext.Request;
-        request.EnableBuffering();
-
-        var stream = new StreamReader(request.Body);
-        var body = await stream.ReadToEndAsync();
-
-        request.Body.Position = 0;
-
-        if (body == null)
-        {
-            context.Fail();
-            return false;
-        }
 
         var roomIdValue = 0;
+
+        var roomIdRegexMatch = Regex.Match(request.Path.Value, @"(Room\/)[0-9]+(\/|$)");
+
+        if (roomIdRegexMatch.Success)
+        {
+			Console.WriteLine(int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray())));
+            roomIdValue = int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray()));
+        }
+
         var userId = 0;
 
-        if (request.HasJsonContentType())
+
+        if (!roomIdRegexMatch.Success)
         {
-            JObject parsedJson = null;
+			request.EnableBuffering();
+			var stream = new StreamReader(request.Body);
+			var body = await stream.ReadToEndAsync();
 
-            try
-            {
-                parsedJson = JObject.Parse(body);
-            }
-            catch (Exception e)
-            {
-                context.Fail();
-                return false;
-            }
+			request.Body.Position = 0;
 
-            if (parsedJson == null)
-            {
-                context.Fail();
-                return false;
-            }
+			if (body == null)
+			{
+				context.Fail();
+				return false;
+			}
 
-            var roomId = parsedJson.GetValue("RoomId");
+            if (request.HasJsonContentType())
+            {
+                JObject parsedJson = null;
 
-            if (roomId == null)
-            {
-                context.Fail();
-                return false;
-            }
+                try
+                {
+                    parsedJson = JObject.Parse(body);
+                }
+                catch (Exception e)
+                {
+                    context.Fail();
+                    return false;
+                }
 
-            roomIdValue = int.Parse(roomId.ToString());
-        }
-        else
-        {
-            try
-            {
-                roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
+                if (parsedJson == null)
+                {
+                    context.Fail();
+                    return false;
+                }
+
+                var roomId = parsedJson.GetValue("RoomId");
+
+                if (roomId == null)
+                {
+                    context.Fail();
+                    return false;
+                }
+
+                roomIdValue = int.Parse(roomId.ToString());
             }
-            catch
+            else
             {
-                context.Fail();
-                return false;
+                try
+                {
+                    roomIdValue = int.Parse(request.Form.Where(x => x.Key == "RoomId").FirstOrDefault().Value);
+                }
+                catch
+                {
+                    context.Fail();
+                    return false;
+                }
             }
         }
 

@@ -1,5 +1,5 @@
 <template>
-  <RoomsMain/>  
+  <RoomManagementMain/>  
 </template>
     
 <script>
