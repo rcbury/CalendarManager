@@ -1,6 +1,7 @@
 using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
 
 class RoomRepository : IRoomRepository
@@ -17,7 +18,7 @@ class RoomRepository : IRoomRepository
         using (var transaction = _context.Database.BeginTransaction())
         {
             var dbRoom = _context.Rooms.Where(item => item.Id == roomId).FirstOrDefault();
-            if (dbRoom != null) 
+            if (dbRoom != null)
             {
                 var dbRoomUsers = new RoomUser
                 {
@@ -62,7 +63,7 @@ class RoomRepository : IRoomRepository
         using (var transaction = _context.Database.BeginTransaction())
         {
             var dbRoom = _context.Rooms.Where(room => room.Id == id).FirstOrDefault();
-            if (dbRoom != null) 
+            if (dbRoom != null)
             {
                 var dbRoomUsers = _context.RoomUsers.Where(ru => ru.RoomId == dbRoom.Id);
                 _context.RoomUsers.RemoveRange(dbRoomUsers);
@@ -85,10 +86,40 @@ class RoomRepository : IRoomRepository
     {
         var room = _context.Rooms
             .Where(item => item.Id == id)
-            .Select(item => new RoomDto {Id = item.Id, Name = item.Name})
+            .Select(item => new RoomDto { Id = item.Id, Name = item.Name, AuthorId = item.AuthorId })
             .FirstOrDefault();
         room = room == null ? new RoomDto { Id = 0, Name = "Not found" } : room;
         return room;
+    }
+
+    public List<RoomDto> GetByUser(int userId)
+    {
+        var rooms = _context.Rooms
+			.Include(room => room.RoomUsers)
+            .Where(item => item.RoomUsers.Any(x => x.UserId == userId))
+            .Select(item => new RoomDto { Id = item.Id, Name = item.Name, AuthorId = item.AuthorId })
+            .ToList();
+
+        return rooms;
+    }
+
+    public List<UserRoomDto> GetUsersByRoom(int roomId)
+    {
+        var users = _context.RoomUsers
+			.Include(roomUser => roomUser.User)
+            .Where(roomUser => roomUser.RoomId == roomId)
+            .Select(roomUser => new UserRoomDto
+            {
+                Id = roomUser.User.Id,
+                UserName = roomUser.User.UserName,
+                Email = roomUser.User.Email,
+                FirstName = roomUser.User.FirstName,
+                LastName = roomUser.User.LastName,
+				UserRoleId = roomUser.UserRoleId
+            })
+            .ToList();
+
+        return users;
     }
 
     public bool ToggleAdmin(int roomId, int userId)
@@ -99,7 +130,7 @@ class RoomRepository : IRoomRepository
             if (dbRoom != null)
             {
                 var roomUsers = _context.RoomUsers.Where(item => item.RoomId == dbRoom.Id && item.UserId == userId).FirstOrDefault();
-                if (roomUsers != null) 
+                if (roomUsers != null)
                 {
                     if (roomUsers.UserRoleId == 1)
                     {
@@ -108,14 +139,14 @@ class RoomRepository : IRoomRepository
                         transaction.Commit();
                         return false;
                     }
-                    else if (roomUsers.UserRoleId == 2) 
+                    else if (roomUsers.UserRoleId == 2)
                     {
                         roomUsers.UserRoleId = 1;
                         _context.SaveChanges();
                         transaction.Commit();
                         return true;
                     }
-                } 
+                }
             }
         }
         return false;
@@ -126,7 +157,7 @@ class RoomRepository : IRoomRepository
         using (var transaction = _context.Database.BeginTransaction())
         {
             var dbRoom = _context.Rooms.Where(item => item.Id == room.Id).FirstOrDefault();
-            if (dbRoom != null) 
+            if (dbRoom != null)
             {
                 dbRoom.Name = room.Name;
                 _context.SaveChanges();

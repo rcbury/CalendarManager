@@ -4,7 +4,7 @@
             <h1 class="application-login-form__title">Календарь 3000</h1>
             <transition name="fade" mode="out-in">
                 <LoginAuthorization @changeForm="changeForm" v-if="authorizationFormType === 'login'"/>
-                <LoginRegistration @changeForm="changeForm" v-if="authorizationFormType === 'register'" />
+                <LoginRegistration @successfulRegistration="changeForm" @changeForm="changeForm" v-if="authorizationFormType === 'register'" />
                 <LoginForgoutPassword @changeForm="changeForm" v-else />
             </transition>
         </div>

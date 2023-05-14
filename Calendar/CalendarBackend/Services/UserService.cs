@@ -68,9 +68,6 @@ public class UserService
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
-        //if (user == null)
-        //throw new Exception("User not found");
-
         user.FirstName = userDto.FirstName;
         user.LastName = userDto.LastName;
 
@@ -86,6 +83,8 @@ public class UserService
         }
 
         var updatedUserDto = new UserDto();
+
+		updatedUserDto.Id = user.Id;
         updatedUserDto.LastName = user.LastName;
         updatedUserDto.FirstName = user.FirstName;
         updatedUserDto.UserName = user.UserName;

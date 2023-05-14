@@ -1,5 +1,5 @@
 <template>
-  <loginAuthorization/>
+  <calendarMain/>
 </template>
 
 <script>

@@ -38,7 +38,6 @@ namespace CalendarBackend.Controllers
 
         [HttpPost]
         [Route("token")]
-        [Authorize]
         public async Task<IActionResult> RefreshAccesToken([FromBody] RefreshTokenDto accessTokenRefreshDto)
         {
             var newAccessToken = _authenticationService.RenewAccesToken(accessTokenRefreshDto.RefreshToken);

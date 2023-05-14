@@ -10,17 +10,16 @@
         <v-btn color="success" class="mt-4" block @click="validate">
           Login
         </v-btn>
-        <v-btn color="success" class="mt-4" block @click="test">
-          Test
-        </v-btn>
       </div>
 
-      <v-btn class="mt-4" @click="$emit('changeForm', 'register')">
-        Registration
-      </v-btn>
-      <v-btn class="mt-4 flex" color="info" @click="$emit('changeForm', 'forgout')">
-        Forgot your password?
-      </v-btn>
+      <div class="d-flex mt-4 justify-space-between">
+        <v-btn small @click="$emit('changeForm', 'register')">
+          Registration
+        </v-btn>
+        <v-btn small color="info" @click="$emit('changeForm', 'forgout')">
+          Forgot your password?
+        </v-btn>
+      </div>
     </v-form>
   </div>
 </template>
@@ -28,8 +27,8 @@
 <script>
 export default {
   data: () => ({
-    loginField: '',
-    passwordField: '',
+    loginField: 'test@test.test',
+    passwordField: 'Testtest123!',
 
     loginRules: [
       (v) => !!v || 'Login is required',
@@ -56,10 +55,6 @@ export default {
           console.log(error)
         }
       }
-    },
-
-    async test() {
-      console.log(this.$auth.logout())
     },
 
     reset() {

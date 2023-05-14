@@ -48,16 +48,11 @@ namespace CalendarBackend.Controllers
         [Authorize]
         public async Task<IActionResult> Update([FromBody] UserDto userData)
         {
-            var authorizedUser = this.User;
+            var authorizedUserClaim = this.User;
 
-            Console.WriteLine(userData);
+			var user = await _userService.GetUserByClaim(authorizedUserClaim);
 
-            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
-
-            if (userIdClaim == null)
-                return new BadRequestResult();
-
-            var result = await _userService.UpdateUser(userData, int.Parse(userIdClaim.Value));
+            var result = await _userService.UpdateUser(userData, user.Id);
 
             if (result.Result)
                 return new OkObjectResult(result);
@@ -113,27 +108,26 @@ namespace CalendarBackend.Controllers
         [Authorize]
         public async Task<IActionResult> GetSelf()
         {
-            var authorizedUser = this.User;
+            var authorizedUserClaim = this.User;
 
-            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
-
-            if (userIdClaim == null)
-                return new BadRequestResult();
-
-            var user = await _userManager.FindByIdAsync(userIdClaim.Value);
+			var user = await _userService.GetUserByClaim(authorizedUserClaim);
 
             if (user == null)
                 return new BadRequestResult();
 
-            var UserResponseDTO = new UserDto();
-            UserResponseDTO.LastName = user.LastName;
-            UserResponseDTO.FirstName = user.FirstName;
-            UserResponseDTO.UserName = user.UserName;
-            UserResponseDTO.Email = user.Email;
-			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(user.Id.ToString()));
-            UserResponseDTO.AvatarPath = result;
+            var userResponseDTO = new UserDto();
 
-            return new OkObjectResult(UserResponseDTO);
+			userResponseDTO.Id = user.Id;
+            userResponseDTO.LastName = user.LastName;
+            userResponseDTO.FirstName = user.FirstName;
+            userResponseDTO.UserName = user.UserName;
+            userResponseDTO.Email = user.Email;
+
+			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(user.Id.ToString()));
+
+            userResponseDTO.AvatarPath = result;
+
+            return new OkObjectResult(userResponseDTO);
         }
     }
 }
