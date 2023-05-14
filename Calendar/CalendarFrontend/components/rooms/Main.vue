@@ -2,7 +2,7 @@
   <div class="application-rooms__container">
     <div class="application-rooms">
       <RoomsCreate @addRooms="addRooms" />
-      <RoomsList :roomsList="roomsList" @onSelect="onSelect"/>
+      <RoomsList :roomsList="roomsList" @roomDelete="fetchRooms"/>
     </div>
   </div>
 </template>

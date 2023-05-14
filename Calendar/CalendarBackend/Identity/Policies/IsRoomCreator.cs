@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using CalendarBackend.Db;
 using CalendarBackend.Identity.Requirements;
+using CalendarBackend.Repository.Interfaces;
 using CalendarBackend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,28 +9,28 @@ using Newtonsoft.Json.Linq;
 
 namespace CalendarBackend.Identity.Policies;
 
-public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
+public class RoomCreatorHandler : AuthorizationHandler<RoomCreatorRequirement>
 {
-    private readonly CalendarDevContext _calendarDevContext;
     private readonly UserManager<CalendarUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly UserService _userRoleService;
+    private readonly IRoomRepository _roomRepository;
 
-    public RoomMemberHandler(
-        CalendarDevContext calendarDevContext,
+    public RoomCreatorHandler(
         UserManager<CalendarUser> userManager,
         IHttpContextAccessor httpContextAccessor,
-        UserService userRoleService)
+        UserService userRoleService,
+		IRoomRepository roomRepository)
     {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         _userManager = userManager;
-        _calendarDevContext = calendarDevContext;
         _userRoleService = userRoleService;
+		_roomRepository = roomRepository;
     }
 
     protected override async System.Threading.Tasks.Task<bool> HandleRequirementAsync(
         AuthorizationHandlerContext context,
-        RoomMemberRequirement permissionRequirement)
+        RoomCreatorRequirement permissionRequirement)
     {
         if (context.User == null)
         {
@@ -42,6 +43,7 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
         var roomIdValue = 0;
 
         var roomIdRegexMatch = Regex.Match(request.Path.Value, @"(Room\/)[0-9]+(\/|$)");
+
 
         if (roomIdRegexMatch.Success)
         {
@@ -109,7 +111,6 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
             }
         }
 
-
         var user = await _userManager.FindByIdAsync(context.User.Claims.First(x => x.Type == "userId").Value);
 
         if (user == null)
@@ -118,14 +119,17 @@ public class RoomMemberHandler : AuthorizationHandler<RoomMemberRequirement>
             return false;
         }
 
-        var userRole = await _userRoleService.GetUserRoleByRoom(user.Id, roomIdValue);
+		
 
-        if (userRole == null)
+        var room = _roomRepository.GetById(roomIdValue);
+
+        if (room == null)
         {
             context.Fail();
             return false;
         }
-        else
+
+        if (room.AuthorId == user.Id)
         {
             context.Succeed(permissionRequirement);
             return true;

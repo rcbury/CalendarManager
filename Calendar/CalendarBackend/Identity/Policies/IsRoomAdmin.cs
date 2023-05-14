@@ -45,7 +45,6 @@ public class RoomAdminHandler : AuthorizationHandler<RoomAdminRequirement>
 
         if (roomIdRegexMatch.Success)
         {
-			Console.WriteLine(int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray())));
             roomIdValue = int.Parse(new String(roomIdRegexMatch.Value.Where(Char.IsDigit).ToArray()));
         }
 

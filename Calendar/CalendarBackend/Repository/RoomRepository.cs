@@ -86,7 +86,7 @@ class RoomRepository : IRoomRepository
     {
         var room = _context.Rooms
             .Where(item => item.Id == id)
-            .Select(item => new RoomDto { Id = item.Id, Name = item.Name })
+            .Select(item => new RoomDto { Id = item.Id, Name = item.Name, AuthorId = item.AuthorId })
             .FirstOrDefault();
         room = room == null ? new RoomDto { Id = 0, Name = "Not found" } : room;
         return room;
@@ -97,7 +97,7 @@ class RoomRepository : IRoomRepository
         var rooms = _context.Rooms
 			.Include(room => room.RoomUsers)
             .Where(item => item.RoomUsers.Any(x => x.UserId == userId))
-            .Select(item => new RoomDto { Id = item.Id, Name = item.Name })
+            .Select(item => new RoomDto { Id = item.Id, Name = item.Name, AuthorId = item.AuthorId })
             .ToList();
 
         return rooms;

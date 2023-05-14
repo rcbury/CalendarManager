@@ -55,7 +55,6 @@ namespace CalendarBackend.Controllers
         [Authorize(Policy = "IsRoomMember")]
         public async Task<IActionResult> GetUserRole(int id, int userId)
         {
-            var users = _roomRepository.GetUsersByRoom(id);
             var userRole = await _userService.GetUserRoleByRoom(userId, id);
 
             var userRoleDto = new UserRoleDto
@@ -123,7 +122,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "IsRoomAdmin")]
+        [Authorize(Policy = "IsRoomCreator")]
         public async Task<IActionResult> DeleteRoom(int id)
         {
             _roomRepository.DeleteById(id);

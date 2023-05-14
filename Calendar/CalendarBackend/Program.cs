@@ -64,6 +64,10 @@ builder.Services.AddAuthorization(options =>
         "IsRoomMember",
         policy => policy.Requirements.Add(new RoomMemberRequirement())
     );
+    options.AddPolicy(
+        "IsRoomCreator",
+        policy => policy.Requirements.Add(new RoomCreatorRequirement())
+    );
 
 });
 
@@ -83,6 +87,7 @@ builder.Services.AddCors(options =>
 // add auth handlers
 builder.Services.AddScoped<IAuthorizationHandler, RoomAdminHandler>();
 builder.Services.AddScoped<IAuthorizationHandler, RoomMemberHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, RoomCreatorHandler>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

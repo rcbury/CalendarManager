@@ -3,8 +3,8 @@
     <nuxt-link to="/profile" :custom="true">
       <div v-if="$auth.loggedIn" class="application-navigation-info">
         <v-avatar :color=stringToColor(this.$auth.user?.userName) size="45">
-          <img v-if="$auth.user.avatarPath" :src="$auth.user.avatarPath"/>
-          <div v-else>  
+          <img v-if="$auth.user.avatarPath" :src="$auth.user.avatarPath" />
+          <div v-else>
             {{ this.$auth.user.userName.at(0) }}
           </div>
         </v-avatar>
@@ -20,7 +20,8 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item v-if="$auth.loggedIn" v-for="(item, i) in authorizedItems" :key="i + 100" :to="item.to" router exact>
+      <v-list-item v-for="(item, i) in authorizedItems" :key="i + 100" :to="item.to"
+        :disabled="!$store.state.activeRoom.id" router exact>
         <v-list-item-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-action>
@@ -64,7 +65,7 @@ export default {
       ],
       authorizedItems: [
         {
-          icon: 'mdi-chart-bubble',
+          icon: 'mdi-tune',
           title: 'Room management',
           to: `/roomManagement?roomId=${this.$store.state.activeRoom.id}`,
           isShown: true,
@@ -112,7 +113,7 @@ export default {
   },
 
   watch: {
-    '$store.state.activeRoom.id': function (){
+    '$store.state.activeRoom.id': function () {
       //bad
       this.authorizedItems[0].to = `/roomManagement?roomId=${this.$store.state.activeRoom.id}`
     }

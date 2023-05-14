@@ -3,10 +3,17 @@
     <v-list rounded>
       <v-subheader>List Rooms</v-subheader>
       <v-list-item-group v-model="selectedRoom" color="primary">
-        <v-list-item v-for="(room, i) in roomsList" :key="room.id" @click="() => onSelect(room.id)">
-          <v-list-item-content>
-            <v-list-item-title v-text="room.name"></v-list-item-title>
-          </v-list-item-content>
+        <v-list-item v-for="(room, i) in roomsList" :key="room.id">
+          <template v-slot:default="{ active }">
+            <v-list-item-content class="d-flex flex-row justify-space-between">
+              <v-list-item-title v-text="room.name"></v-list-item-title>
+
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-btn v-if="room.authorId === $auth.user.id" fab small color="error"
+                @click="deleteRoom(room.id)"><v-icon>mdi-delete</v-icon></v-btn>
+            </v-list-item-action>
+          </template>
         </v-list-item>
       </v-list-item-group>
     </v-list>
@@ -23,26 +30,6 @@ export default {
     }
   },
   methods: {
-    async onSelect(roomId) {
-      const activeRoomId = this.$store.state.activeRoom.id
-      const newRoomId = roomId == activeRoomId ? undefined : roomId
-      const authorizedUserId = this.$auth.user.id;
-
-      if (newRoomId === undefined) {
-        this.$store.commit("activeRoom/setAuthorizedUserRoleId", 0)
-      } else {
-        try {
-          let authorizedUserRole = await this.$axios.$get(`/Room/${newRoomId}/User/${authorizedUserId}/Role`)
-          this.$store.commit("activeRoom/setAuthorizedUserRoleId", authorizedUserRole.id)
-        }
-        catch{
-          this.$store.commit("activeRoom/setAuthorizedUserRoleId", 0)
-        }
-      }
-
-      this.$store.commit("activeRoom/setId", newRoomId)
-    },
-
     findRoomIndexById(rooms) {
       if (rooms === undefined) return undefined
 
@@ -56,11 +43,41 @@ export default {
       const currentSelectedRoom = this.$store.state.activeRoom.id
       return roomId === currentSelectedRoom
     },
+
+    async deleteRoom(roomId) {
+      try {
+        await this.$axios.$delete(`/Room/${roomId}`)
+        this.$emit('roomDelete', roomId)
+      }
+      catch (error) {
+        console.log(error)
+      }
+
+    }
   },
 
   watch: {
     'roomsList'(newValue) {
       this.selectedRoom = this.findRoomIndexById(newValue)
+    },
+    async selectedRoom(newRoomIndex) {
+      const activeRoomId = this.$store.state.activeRoom.id
+      const authorizedUserId = this.$auth.user.id;
+      const newRoomId = newRoomIndex === undefined ? 0 : this.roomsList[newRoomIndex].id
+
+      if (newRoomId === 0) {
+        this.$store.commit("activeRoom/setAuthorizedUserRoleId", 0)
+      } else {
+        try {
+          let authorizedUserRole = await this.$axios.$get(`/Room/${newRoomId}/User/${authorizedUserId}/Role`)
+          this.$store.commit("activeRoom/setAuthorizedUserRoleId", authorizedUserRole.id)
+        }
+        catch {
+          this.$store.commit("activeRoom/setAuthorizedUserRoleId", 0)
+        }
+      }
+
+      this.$store.commit("activeRoom/setId", newRoomId)
     }
   },
 

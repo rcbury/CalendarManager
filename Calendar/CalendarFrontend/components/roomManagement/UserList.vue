@@ -6,9 +6,11 @@
         <v-list-item-content>
           <div class="d-flex justify-space-between">
 
-            <v-list-item-title v-text="`${user.userName} ${$auth.user.id === user.id ? '(you)' : ''}`"></v-list-item-title>
-            <v-checkbox :min-width="100" :label="'is admin'" :disabled="!isRoomAdmin() || isLoading || $auth.user.id === user.id"
-              :input-value="user.userRoleId === 1" @change="onAdminToggle(user.id)" />
+            <v-list-item-title
+              v-text="`${user.userName} ${$auth.user.id === user.id ? '(you)' : ''}`"></v-list-item-title>
+            <v-checkbox :min-width="100" :label="'is admin'"
+              :disabled="!isRoomAdmin() || isLoading || $auth.user.id === user.id" :input-value="user.userRoleId === 1"
+              @change="onAdminToggle(user.id)" />
           </div>
 
         </v-list-item-content>
@@ -34,7 +36,7 @@ export default {
     },
     async onAdminToggle(userId) {
       this.isLoading = true
-      this.$emit('adminToggle', userId, () => {this.isLoading = false})
+      this.$emit('adminToggle', userId, () => { this.isLoading = false })
     }
   },
 
