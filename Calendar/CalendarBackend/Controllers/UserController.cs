@@ -43,6 +43,57 @@ namespace CalendarBackend.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("/User/self/reset")]
+        public async Task<IActionResult> ResetPassword(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                //Большая малая буква, цифра, символ
+                var charsBig = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var charsSmall = "abcdefghijklmnopqrstuvwxyz";
+                var numbers = "0123456789";
+                var symbols = "!@#$%^&*";
+                var stringChars = new char[12];
+                var random = new Random();
+
+                var newPassword = "";
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    var count = random.Next(0, charsBig.Length);
+                    newPassword += charsBig[count];
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var count = random.Next(0, charsSmall.Length);
+                    newPassword += charsSmall[count];
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var count = random.Next(0, numbers.Length);
+                    newPassword += numbers[count];
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    var count = random.Next(0, symbols.Length);
+                    newPassword += symbols[count];
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var res = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+                return Ok(newPassword);
+            }
+
+            return BadRequest();
+            
+        }
+
         [HttpPut]
         [Route("/User/self")]
         [Authorize]
