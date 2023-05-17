@@ -30,7 +30,7 @@
               <v-avatar size="100" @click="toggleAvatarDialog">
                 <v-img v-if="$auth.user.avatarPath" :src="avatarPath" class="profile-form-avatar__image" />
                 <div v-else>
-                  {{ this.$auth.user.userName.at(0) }}
+                  {{ $auth.user.userName.at(0) }}
                 </div>
 
               </v-avatar>
