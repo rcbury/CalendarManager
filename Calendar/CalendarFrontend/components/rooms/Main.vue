@@ -50,7 +50,7 @@ export default {
 .application {
   &-rooms v-card {
     grid-template-rows: 1fr;
-    width: 70%;
+    width: 80%;
     margin-top: 3vh;
   }
 

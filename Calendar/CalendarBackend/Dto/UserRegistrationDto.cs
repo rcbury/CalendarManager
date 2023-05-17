@@ -17,5 +17,6 @@ namespace CalendarBackend.Dto
 
         [Required]
         public string Password { get; set; } = null!;
+
     }
 }

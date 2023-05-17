@@ -2,7 +2,10 @@
   <v-row class="fill-height">
     <v-col>
       <v-sheet height="100vh">
+        <CalendarCreate @onCreateEvent="onCreateEvent" @closeDialog="closeDialog" :openDialogType="openDialogType" :event="events.at(-1)" v-if="openDialogType != null"/>
+
         <CalendarSettings @getCalendarName="getCalendarName" :type="type" @setToday="setToday" @prev="prev" @next="next" @changeType="changeType"/>
+        
         <v-calendar
           ref="calendar"
           v-model="value"
@@ -12,7 +15,7 @@
           :events="events"
           :event-color="getEventColor"
           :event-ripple="false"
-          @change="getEvents"
+          @click:event="clickEvent"
           @mousedown:event="startDrag"
           @mousedown:time="startTime"
           @mousemove:time="mouseMove"
@@ -56,7 +59,8 @@
       createStart: null,
       extendOriginal: null,
       ready: false,
-      type: "week"
+      type: "week",
+      openDialogType: null
     }),
 
     created() {
@@ -81,6 +85,10 @@
     },
 
     methods: {
+      clickEvent({ nativeEvent, event }) {
+        this.openDialogType = 'open';
+      },
+
       getCalendarName() {
         return this.$refs.calendar.title;
       },
@@ -98,7 +106,6 @@
       },
 
       next () {
-        console.log("next")
         this.$refs.calendar.next()
       },
 
@@ -124,6 +131,7 @@
           this.extendOriginal = null
         }
       },
+
       startTime (tms) {
         const mouse = this.toTime(tms)
 
@@ -144,11 +152,13 @@
           this.events.push(this.createEvent)
         }
       },
+      
       extendBottom (event) {
         this.createEvent = event
         this.createStart = event.start
         this.extendOriginal = event.end
       },
+
       mouseMove (tms) {
         const mouse = this.toTime(tms)
 
@@ -171,13 +181,35 @@
           this.createEvent.end = max
         }
       },
+      
+      openDialog(type) {
+        this.openDialogType = type;
+      },
+
+      closeDialog(isCreate) {
+        this.openDialogType = null;
+      
+        if (!isCreate) {
+          this.events.pop();
+        }
+      },
+
+      onCreateEvent(event) {
+        this.closeDialog(true);
+        this.events.pop();
+        this.events.push(event);
+      },
+
       endDrag () {
+        this.openDialog('create');
+
         this.dragTime = null
         this.dragEvent = null
         this.createEvent = null
         this.createStart = null
         this.extendOriginal = null
       },
+
       cancelDrag () {
         if (this.createEvent) {
           if (this.extendOriginal) {
@@ -195,6 +227,7 @@
         this.dragTime = null
         this.dragEvent = null
       },
+
       roundTime (time, down = true) {
         const roundTo = 15 // minutes
         const roundDownTime = roundTo * 60 * 1000
@@ -203,9 +236,11 @@
           ? time - time % roundDownTime
           : time + (roundDownTime - (time % roundDownTime))
       },
+      
       toTime (tms) {
         return new Date(tms.year, tms.month - 1, tms.day, tms.hour, tms.minute).getTime()
       },
+      
       getEventColor (event) {
         const rgb = parseInt(event.color.substring(1), 16)
         const r = (rgb >> 16) & 0xFF
@@ -218,6 +253,7 @@
             ? `rgba(${r}, ${g}, ${b}, 0.7)`
             : event.color
       },
+
       getEvents ({ start, end }) {
         const events = []
 
@@ -244,9 +280,11 @@
 
         this.events = events
       },
+
       rnd (a, b) {
         return Math.floor((b - a + 1) * Math.random()) + a
       },
+
       rndElement (arr) {
         return arr[this.rnd(0, arr.length - 1)]
       },
