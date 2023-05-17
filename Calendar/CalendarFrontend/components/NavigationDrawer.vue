@@ -53,14 +53,9 @@ export default {
       drawer: true,
       commonItems: [
         {
-          icon: 'mdi-apps',
-          title: 'Main menu',
-          to: '/',
-        },
-        {
           icon: 'mdi-chart-bubble',
           title: 'Rooms',
-          to: '/rooms',
+          to: '/',
         },
       ],
       authorizedItems: [
@@ -70,6 +65,11 @@ export default {
           to: `/roomManagement?roomId=${this.$store.state.activeRoom.id}`,
           isShown: true,
         },
+        {
+          icon: 'mdi-apps',
+          title: 'Calendar',
+          to: '/calendar',
+        }
       ]
     }
   },

@@ -1,22 +1,9 @@
 <template>
-  <calendarMain/>
+  <RoomsMain/>  
 </template>
-
+  
 <script>
-  export default {
-  }
-
+export default {
+  name: 'Rooms list'
+}
 </script>
-
-<style lang="scss">
-html {
-  overflow: hidden;
-}
-
-.container {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  padding-right: 0 !important;
-  padding-left: 0.2vw;
-}
-</style>

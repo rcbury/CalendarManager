@@ -25,8 +25,8 @@ namespace CalendarBackend.Controllers
             _userService = userService;
         }
 
-        [HttpGet("all")]
-        [Authorize("IsRoomAdmin")]
+        [HttpGet("all/{roomId}")]
+        // [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> GetAllTasks(int roomId)
         {
             var tasks = _taskRepository.GetAll(roomId);
@@ -34,7 +34,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize("IsRoomAdmin")]
+        //[Authorize("IsRoomAdmin")]
         public async Task<IActionResult> GetById(int id)
         {
             var task = _taskRepository.GetById(id);
@@ -42,7 +42,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpPost()]
-        [Authorize("IsRoomAdmin")]
+        //[Authorize("IsRoomAdmin")]
         public async Task<IActionResult> CreateTask([FromBody] TaskDto task)
         {
             var user = await _userService.GetUserByClaim(this.User);
@@ -51,7 +51,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpPut()]
-        [Authorize("IsRoomAdmin")]
+        //[Authorize("IsRoomAdmin")]
         public async Task<IActionResult> UpdateTask([FromBody] TaskDto task)
         {
             var res = _taskRepository.Update(task);
@@ -59,7 +59,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize("IsRoomAdmin")]
+        //[Authorize("IsRoomAdmin")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             _taskService.DeleteTask(id);
@@ -67,8 +67,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpPost("{id}/files")]
-        [Authorize("IsRoomAdmin")]
-
+        //[Authorize("IsRoomAdmin")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file, int id)
         {
             var authorizedUser = this.User;
@@ -91,7 +90,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpGet("{id}/files")]
-        [Authorize("IsRoomAdmin")]
+        // [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> GetTaskFiles(int id)
         {
             var authorizedUser = this.User;
@@ -114,7 +113,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpDelete("/files/{fileId}")]
-        [Authorize("IsRoomAdmin")]
+        // [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> DeleteFile(int id, int fileId)
         {
             var authorizedUser = this.User;

@@ -33,9 +33,7 @@ export default {
         let rooms = await this.$axios.$get("/Room")
 
         this.roomsList = rooms
-        console.log(this.roomsList)
       } catch (error) {
-        console.log(error)
       }
     }
   },
@@ -59,9 +57,5 @@ export default {
     justify-content: center;
     margin-top: 10%;
   }
-}
-
-.v-card {
-  margin-top: 3vh;
 }
 </style>

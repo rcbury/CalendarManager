@@ -2,8 +2,6 @@
   <v-row class="fill-height">
     <v-col>
       <v-sheet height="100vh">
-        <CalendarCreate @onCreateEvent="onCreateEvent" @closeDialog="closeDialog" :openDialogType="openDialogType" :event="events.at(-1)" v-if="openDialogType != null"/>
-
         <CalendarSettings @getCalendarName="getCalendarName" :type="type" @setToday="setToday" @prev="prev" @next="next" @changeType="changeType"/>
         
         <v-calendar
@@ -41,6 +39,8 @@
             ></div>
           </template>
         </v-calendar>
+
+        <CalendarCreate @onCreateEvent="onCreateEvent" @closeDialog="closeDialog" :openDialogType="openDialogType" :event="events[openDialogIndex]" v-if="openDialogType != null"/>
       </v-sheet>
     </v-col>
   </v-row>
@@ -60,7 +60,8 @@
       extendOriginal: null,
       ready: false,
       type: "week",
-      openDialogType: null
+      openDialogType: null,
+      openDialogIndex: null
     }),
 
     created() {
@@ -83,10 +84,26 @@
 
       this.$refs.calendar.title = "TestCalendar"
     },
+    
+    async fetch() {
+      const tasks = await this.$axios.$get(`/Task/all/${this.$store.state.activeRoom.id}`);
+
+      for (var task of tasks) {
+        this.events.push({
+          id: task.id,
+          name: task.name,
+          description: task.description,
+          start: new Date(task.dateStart).getTime(),
+          color: this.rndElement(this.colors),
+          end: new Date(task.dateEnd).getTime(),
+          timed: true
+        });
+      }
+    },
 
     methods: {
       clickEvent({ nativeEvent, event }) {
-        this.openDialogType = 'open';
+        this.openDialog('open', event.id)
       },
 
       getCalendarName() {
@@ -182,27 +199,80 @@
         }
       },
       
-      openDialog(type) {
-        this.openDialogType = type;
+      openDialog(type, eventId) {
+        if (type == 'open') {
+          this.openDialogIndex = this.events.findIndex(item => item.id == eventId);
+        } else {
+          this.openDialogIndex = this.events.length - 1;
+          this.events[this.openDialogIndex].id = null;
+        }
+
+        console.log(`open dialog openDialogIndex ${this.openDialogIndex} eventId ${eventId}`)
+        if (this.openDialogIndex != -1)
+          this.openDialogType = type;
       },
 
-      closeDialog(isCreate) {
+      async closeDialog(event) {
         this.openDialogType = null;
-      
-        if (!isCreate) {
-          this.events.pop();
+        
+        if (event) {
+          var elementIndex = this.events.findIndex(item => item.id == event.id);
+          if (elementIndex != -1) {
+            this.events.splice(elementIndex, 1);
+            this.deleteApiTask(event);
+          }
         }
       },
 
       onCreateEvent(event) {
-        this.closeDialog(true);
-        this.events.pop();
-        this.events.push(event);
+        this.closeDialog();
+        
+        console.log(new Date(event.end))
+        var eventIndex = event.id != null ? this.events.findIndex(item => item.id == event.id) : this.events.length;
+        
+        if (eventIndex != -1) {
+          this.events[eventIndex] = { id: null, ...event };
+        }
+
+        this.updateEventApi(eventIndex);
+      },
+
+      async deleteApiTask(event) {
+        await this.$axios.$delete(`/Task/${event.id}`);
+      },  
+
+      async updateEventApi(eventIndex) {
+        let requestBody = null;
+        
+        if (this.events[eventIndex].id) {
+          requestBody = { 
+            id: this.events[eventIndex].id,
+            name: this.events[eventIndex].name, 
+            description: this.events[eventIndex].description, 
+            DateStart: new Date(this.events[eventIndex].start), 
+            DateEnd: new Date(this.events[eventIndex].end), 
+            RoomId: this.$store.state.activeRoom.id 
+          };
+
+          await this.$axios.$put(`/Task`, requestBody);
+        } else {
+          requestBody = { 
+            name: this.events[eventIndex].name, 
+            description: this.events[eventIndex].description, 
+            DateStart: new Date(this.events[eventIndex].start), 
+            DateEnd: new Date(this.events[eventIndex].end), 
+            RoomId: this.$store.state.activeRoom.id 
+          };
+
+          var data = await this.$axios.$post(`/Task`, requestBody);
+          this.events[eventIndex - 1].id = data.id;
+        }
       },
 
       endDrag () {
-        this.openDialog('create');
-
+        if (this.createEvent)
+          this.openDialog('create');
+        
         this.dragTime = null
         this.dragEvent = null
         this.createEvent = null

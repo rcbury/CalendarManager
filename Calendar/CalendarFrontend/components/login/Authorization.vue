@@ -1,9 +1,13 @@
 <template>
   <div class="application-login-main__authorization">
     <v-form ref="form">
-      <v-text-field v-model="loginField" :counter="20" :rules="loginRules" label="Login" required></v-text-field>
+      <v-text-field v-model="loginField" :counter="62" :rules="loginRules" :error-messages="Array.isArray(backendErrorMessages) ? backendErrorMessages
+                .filter(x => x.code.toLowerCase().includes('email'))
+                .map(error => error.description) : []" label="Email" required></v-text-field>
 
-      <v-text-field v-model="passwordField" :rules="passwordRules" type="password" label="Password"
+      <v-text-field v-model="passwordField" :rules="passwordRules" :error-messages="Array.isArray(backendErrorMessages) ? backendErrorMessages
+                .filter(x => x.code.toLowerCase().includes('password'))
+                .map(error => error.description) : []" type="password" label="Password"
         required></v-text-field>
 
       <div class="d-flex flex-column">
@@ -29,10 +33,11 @@ export default {
   data: () => ({
     loginField: 'test@test.test',
     passwordField: 'Testtest123!',
+    backendErrorMessages: {},
 
     loginRules: [
       (v) => !!v || 'Login is required',
-      (v) => (v && v.length <= 20) || 'Login must be less than 20 characters',
+      (v) => (v && v.length <= 62) || 'Login must be less than 62 characters',
     ],
 
     passwordRules: [(v) => !!v || 'Password is required'],
@@ -53,6 +58,7 @@ export default {
 
         } catch (error) {
           console.log(error)
+          this.backendErrorMessages = error.response.data.errors;
         }
       }
     },

@@ -81,8 +81,4 @@ export default {
     column-gap: 20px;
   }
 }
-
-.v-card {
-  margin-top: 3vh;
-}
 </style>

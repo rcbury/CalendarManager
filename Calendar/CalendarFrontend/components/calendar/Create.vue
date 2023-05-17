@@ -6,33 +6,35 @@
     >
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
-            {{ openDialogType == 'create' ? "Create event" : "Edit event" }}
+            {{ event.id == null ? "Create event" : "Edit event" }}
         </v-card-title>
 
         <v-card-text>
-            <br>
-            <div class="application-calendar-time">
-                Start: {{ formatedTime(event.start) }}
-            </div>
+          <CalendarDateTimePicker 
+            @save="changeTimeStart"
+            :time="convertTime(event.start)"
+            :date="new Date(event.start).toISOString().substr(0, 10)"
+            label="Time start task"
+          />
+          <CalendarDateTimePicker 
+            @save="changeTimeEnd"
+            :time="convertTime(event.end)"
+            :date="new Date(event.end).toISOString().substr(0, 10)"
+            label="Time start task"
+          />
+          <v-text-field
+              v-model="nameEventsField"
+              :counter="32"
+              label="Name event"
+              required
+          ></v-text-field>
 
-            <div class="application-calendar-time">
-                End: {{ formatedTime(event.end) }}
-            </div>
-            <br><br>
-
-            <v-text-field
-                v-model="nameEventsField"
-                :counter="32"
-                label="Name event"
-                required
-            ></v-text-field>
-
-            <v-text-field
-                v-model="descriptionField"
-                :counter="144"
-                label="Description"
-                required
-            ></v-text-field>
+          <v-textarea
+              v-model="descriptionField"
+              :counter="144"
+              label="Description"
+              required
+          ></v-textarea>
         </v-card-text>
 
         <v-divider></v-divider>
@@ -44,15 +46,15 @@
             text
             @click="createEvent()"
           >
-            {{ openDialogType == 'create' ? "Create" : "Close" }}
+            {{ event.id == null ? "Create" : "Close" }}
           </v-btn>
 
           <v-btn
             color="error"
             text
-            @click="closeDialog(false)"
+            @click="closeDialog()"
           >
-            {{ openDialogType == 'create' ? "Close" : "Delete" }}
+            {{ event.id == null ? "Close" : "Delete" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -67,14 +69,31 @@ export default {
     data: () => ({
         nameEventsField: "",
         descriptionField: "",
+        eventStart: null,
+        eventEnd: null,
         dialog: true
     }),
 
     created() {
-        this.nameEventsField = this.event.name;
+      this.nameEventsField = this.event.name;
+      this.descriptionField = this.event.description;
+      this.eventStart = this.event.start;
+      this.eventEnd = this.event.end;
     },
 
     methods: {
+        changeTimeStart(timestamp) {
+          this.eventStart = timestamp;
+        },
+
+        changeTimeEnd(timestamp) {
+          this.eventEnd = timestamp;
+        },
+
+        convertTime(timestamp) {
+          return `${new Date(timestamp).getHours()}:${new Date(timestamp).getMinutes().toString().padStart(2, '0')}`;
+        },
+
         formatedTime(time) {
             const date = new Date(time);
             const hours = date.getUTCHours().toString().padStart(2, "0");
@@ -91,12 +110,15 @@ export default {
             
             event.name = this.nameEventsField;
             event.description = this.descriptionField;
+            event.start = this.eventStart;
+            event.end = this.eventEnd;
             
+            console.log(event)
             this.$emit('onCreateEvent', event)
         },
 
-        closeDialog(isClose) {
-            this.$emit('closeDialog', isClose)
+        closeDialog() {
+          this.$emit('closeDialog', this.event)
         }
     }
 }

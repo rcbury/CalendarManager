@@ -52,8 +52,9 @@ public class TaskService
             {
                 DeleteFile(file.Id);
                 _fileRepository.DeleteById(id);
-                _taskRepository.DeleteById(id);
             }
+
+            _taskRepository.DeleteById(id);
         }
     }
 }

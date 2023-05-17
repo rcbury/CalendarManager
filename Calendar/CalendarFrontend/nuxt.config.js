@@ -39,6 +39,22 @@ export default {
   //   middleware: ['auth']
   // },
 
+axios: {
+    headers: {
+      common: {
+        'Accept': 'application/json, text/plain, */*',
+        'ContentType': 'application/json; charset=utf-8'
+      },
+      delete: {},
+      get: {},
+      head: {},
+      post: { 'Content-Type': 'application/json; charset=utf-8' },
+      put: { 'Content-Type': 'application/json; charset=utf-8' },
+      patch: {},
+    },
+    baseURL: 'https://localhost:7132/',
+  },
+
   auth: {
     strategies: {
       refresh: {
@@ -92,22 +108,6 @@ export default {
         },
       },
     },
-  },
-
-  axios: {
-    headers: {
-      common: {
-        'Accept': 'application/json, text/plain, */*',
-        'ContentType': 'application/json; charset=utf-8'
-      },
-      delete: {},
-      get: {},
-      head: {},
-      post: { 'Content-Type': 'application/json; charset=utf-8' },
-      put: { 'Content-Type': 'application/json; charset=utf-8' },
-      patch: {},
-    },
-    baseURL: 'https://localhost:7132/',
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
