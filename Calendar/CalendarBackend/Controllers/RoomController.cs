@@ -121,6 +121,14 @@ namespace CalendarBackend.Controllers
             return Ok();
         }
 
+        [HttpPost("{id}/KickUser")]
+        [Authorize(Policy = "IsRoomAdmin")]
+        public async Task<IActionResult> KickUser(int id, int userId)
+        {
+            _roomRepository.DeleteUser(id, userId);
+            return Ok();
+        }
+
         [HttpDelete("{id}")]
         [Authorize(Policy = "IsRoomCreator")]
         public async Task<IActionResult> DeleteRoom(int id)

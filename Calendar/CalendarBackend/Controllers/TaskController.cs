@@ -59,7 +59,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize("IsRoomAdmin")]
+        [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             _taskService.DeleteTask(id);
@@ -67,7 +67,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpPost("{id}/files")]
-        //[Authorize("IsRoomAdmin")]
+        [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> UploadFile([FromForm] IFormFile file, int id)
         {
             var authorizedUser = this.User;
@@ -90,7 +90,7 @@ namespace CalendarBackend.Controllers
         }
 
         [HttpGet("{id}/files")]
-        // [Authorize("IsRoomAdmin")]
+        [Authorize("IsRoomAdmin")]
         public async Task<IActionResult> GetTaskFiles(int id)
         {
             var authorizedUser = this.User;

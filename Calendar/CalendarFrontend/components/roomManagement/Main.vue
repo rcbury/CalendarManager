@@ -6,7 +6,7 @@
         <v-btn color="success" small @click="getInviteLink">Refresh</v-btn>
 
       </div>
-      <RoomManagementUserList :userList="userList" @adminToggle="toggleAdmin" />
+      <RoomManagementUserList :userList="userList" @adminToggle="toggleAdmin" @kickUser="kickUser" />
     </div>
   </div>
 </template>
@@ -24,6 +24,16 @@ export default {
         let users = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/Users`)
 
         this.userList = users
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
+    async kickUser(userId) {
+      try {
+        let result = await this.$axios.$post(`/Room/${this.$store.state.activeRoom.id}/KickUser?userId=${userId}`)
+
+        await this.fetchUsers()
       } catch (error) {
         console.log(error)
       }

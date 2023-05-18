@@ -4,13 +4,15 @@
       <v-subheader>Room users</v-subheader>
       <v-list-item v-for="(user, i) in userList" :key="user.id">
         <v-list-item-content>
-          <div class="d-flex justify-space-between">
+          <div class="d-flex justify-space-between align-center">
 
             <v-list-item-title
               v-text="`${user.userName} ${$auth.user.id === user.id ? '(you)' : ''}`"></v-list-item-title>
             <v-checkbox :min-width="100" :label="'is admin'"
               :disabled="!isRoomAdmin() || isLoading || $auth.user.id === user.id" :input-value="user.userRoleId === 1"
               @change="onAdminToggle(user.id)" />
+            <v-btn :disabled="!isRoomAdmin() || isLoading || $auth.user.id === user.id" class="ml-5"
+              @click="$emit('kickUser', user.id)" v-if="isRoomAdmin" fab small><v-icon>mdi-close</v-icon></v-btn>
           </div>
 
         </v-list-item-content>
@@ -31,6 +33,9 @@ export default {
   },
 
   methods: {
+    kickUser() {
+
+    },
     isRoomAdmin() {
       return this.$store.state.activeRoom.authorizedUserRoleId === 1
     },
@@ -38,13 +43,6 @@ export default {
       this.isLoading = true
       this.$emit('adminToggle', userId, () => { this.isLoading = false })
     }
-  },
-
-  watch: {
-    userList: (value) => {
-      console.log(value)
-    }
-
   },
 
 }
