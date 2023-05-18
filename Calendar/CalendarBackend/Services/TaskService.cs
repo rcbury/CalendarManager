@@ -31,13 +31,13 @@ public class TaskService
         return fileDto;
     }
 
-    public async void DeleteFile(int id)
+    public async void DeleteFile(int fileId)
     {
-        var fileDto = _fileRepository.GetById(id);
+        var fileDto = _fileRepository.GetById(fileId);
 
         _fileStorageService.DeleteFileFromDisk(fileDto.Path);
 
-        _fileRepository.DeleteById(id);
+        _fileRepository.DeleteById(fileId);
     }
 
     public async void DeleteTask(int id)

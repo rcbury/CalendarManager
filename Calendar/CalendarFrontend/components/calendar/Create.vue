@@ -35,10 +35,10 @@
               label="Description"
               required
           ></v-textarea>
+          
+          <CalendarFileInput @change="changeFiles" @remove="removeFiles" :files="files"/>
         </v-card-text>
-
         <v-divider></v-divider>
-
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -67,18 +67,22 @@ export default {
     props: ["event", "onCreateEvent", "openDialogType"],
     
     data: () => ({
+        taskId: null,
         nameEventsField: "",
         descriptionField: "",
+        files: [],
         eventStart: null,
         eventEnd: null,
         dialog: true
     }),
 
     created() {
+      this.taskId = this.event.id;
       this.nameEventsField = this.event.name;
       this.descriptionField = this.event.description;
       this.eventStart = this.event.start;
       this.eventEnd = this.event.end;
+      this.files = this.event.files;
     },
 
     methods: {
@@ -105,6 +109,37 @@ export default {
             return `${day}.${month}.${year} ${hours}:${minutes}`;
         },
 
+        async removeFiles(fileIndex) {
+          if (this.files[fileIndex].id) {
+            await this.$axios.$delete(`/Task/${this.files[fileIndex].id}/files`);          
+            this.files.splice(fileIndex, 1)
+          }
+        },
+
+        async changeFiles(newFiles) {
+          
+          if (!this.taskId) {
+            this.files = newFiles;
+            return;
+          }
+          
+          for (var item in this.files) {
+            if (this.files[item].id) {
+              await this.removeFiles(item)
+            }
+          }
+
+          this.files = newFiles;
+
+          for (var item in newFiles) {
+              var bodyFormData = new FormData();
+
+              bodyFormData.append("file", newFiles[item])
+              var data = await this.$axios.$post(`/Task/${this.taskId}/files`, bodyFormData)
+              this.files[item] = data;
+          }
+        },
+
         createEvent() {
             var event = this.event;
             
@@ -112,8 +147,8 @@ export default {
             event.description = this.descriptionField;
             event.start = this.eventStart;
             event.end = this.eventEnd;
+            event.files = this.files;
             
-            console.log(event)
             this.$emit('onCreateEvent', event)
         },
 

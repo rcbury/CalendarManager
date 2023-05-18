@@ -112,9 +112,9 @@ namespace CalendarBackend.Controllers
             }
         }
 
-        [HttpDelete("/files/{fileId}")]
+        [HttpDelete("{id}/files")]
         // [Authorize("IsRoomAdmin")]
-        public async Task<IActionResult> DeleteFile(int id, int fileId)
+        public async Task<IActionResult> DeleteFile(int id)
         {
             var authorizedUser = this.User;
 

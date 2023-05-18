@@ -89,19 +89,37 @@
       const tasks = await this.$axios.$get(`/Task/all/${this.$store.state.activeRoom.id}`);
 
       for (var task of tasks) {
-        this.events.push({
+
+        const index = this.events.push({
           id: task.id,
           name: task.name,
           description: task.description,
           start: new Date(task.dateStart).getTime(),
-          color: this.rndElement(this.colors),
+          color: this.stringToColour(task.name),
           end: new Date(task.dateEnd).getTime(),
+          files: task.files,
           timed: true
         });
+
+        const data = await this.$axios.$get(`/Task/${task.id}/files`);
+        this.events[index - 1].files = data;
       }
     },
 
     methods: {
+      stringToColour(str) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        var colour = '#';
+        for (var i = 0; i < 3; i++) {
+          var value = (hash >> (i * 8)) & 0xFF;
+          colour += ('00' + value.toString(16)).substr(-2);
+        }
+        return colour;
+      },
+
       clickEvent({ nativeEvent, event }) {
         this.openDialog('open', event.id)
       },
@@ -207,7 +225,6 @@
           this.events[this.openDialogIndex].id = null;
         }
 
-        console.log(`open dialog openDialogIndex ${this.openDialogIndex} eventId ${eventId}`)
         if (this.openDialogIndex != -1)
           this.openDialogType = type;
       },
@@ -227,7 +244,6 @@
       onCreateEvent(event) {
         this.closeDialog();
         
-        console.log(new Date(event.end))
         var eventIndex = event.id != null ? this.events.findIndex(item => item.id == event.id) : this.events.length;
         
         if (eventIndex != -1) {
@@ -251,7 +267,8 @@
             description: this.events[eventIndex].description, 
             DateStart: new Date(this.events[eventIndex].start), 
             DateEnd: new Date(this.events[eventIndex].end), 
-            RoomId: this.$store.state.activeRoom.id 
+            RoomId: this.$store.state.activeRoom.id,
+            files: this.events[eventIndex].files
           };
 
           await this.$axios.$put(`/Task`, requestBody);
@@ -266,6 +283,17 @@
 
           var data = await this.$axios.$post(`/Task`, requestBody);
           this.events[eventIndex - 1].id = data.id;
+
+          if (this.events[eventIndex - 1].files && this.events[eventIndex - 1].files.length > 0) {
+            for (var item in this.events[eventIndex - 1].files) {
+              var bodyFormData = new FormData();
+
+              bodyFormData.append("file", this.events[eventIndex - 1].files[item])
+              
+              var data = await this.$axios.$post(`/Task/${this.events[eventIndex - 1].id}/files`, bodyFormData)
+              this.events[eventIndex - 1].files[item] = data;
+            }
+          }
         }
       },
 

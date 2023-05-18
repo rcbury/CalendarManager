@@ -25,6 +25,7 @@
         <v-time-picker
           v-if="menu2"
           v-model="time"
+          format="24hr"
           full-width
         ></v-time-picker>
 

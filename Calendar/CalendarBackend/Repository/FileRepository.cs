@@ -61,10 +61,12 @@ class FileRepository : IFileRepository
             .Where(item => item.Id == fileId)
             .Select(item => new FileDto { Id = item.Id, Name = item.Name, Path = item.FilePath})
             .FirstOrDefault();
+        
         if (fileDto == null) 
         {
             throw new Exception("File record not found");
         }
+        
         return fileDto;
     }
 }
