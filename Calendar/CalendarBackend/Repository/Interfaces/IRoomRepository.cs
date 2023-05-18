@@ -14,6 +14,7 @@ namespace CalendarBackend.Repository.Interfaces
         public RoomDto Create(RoomDto dto, CalendarUser? user);
         public bool ToggleAdmin(int roomId, int userId);
         public void AddUser(int roomId, int userId);
+        public void DeleteUser(int roomId, int userId);
         public void DeleteById(int id);
     }
 }

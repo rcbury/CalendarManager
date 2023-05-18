@@ -67,7 +67,33 @@ class RoomRepository : IRoomRepository
             {
                 var dbRoomUsers = _context.RoomUsers.Where(ru => ru.RoomId == dbRoom.Id);
                 _context.RoomUsers.RemoveRange(dbRoomUsers);
+
+                var dbRoomTasks = _context.Tasks.Where(task => task.RoomId == dbRoom.Id);
+                _context.Tasks.RemoveRange(dbRoomTasks);
+
+
                 _context.Rooms.Remove(dbRoom);
+                _context.SaveChanges();
+                transaction.Commit();
+            }
+        }
+    }
+
+    public void DeleteUser(int roomId, int userId)
+    {
+				Console.WriteLine("sosu");
+        using (var transaction = _context.Database.BeginTransaction())
+        {
+				Console.WriteLine("sosu");
+            var dbRoom = _context.Rooms.Where(room => room.Id == roomId).FirstOrDefault();
+            if (dbRoom != null)
+            {
+				Console.WriteLine("sosu3");
+                var dbRoomUsers = _context.RoomUsers
+					.Where(ru => ru.RoomId == dbRoom.Id && ru.UserId == userId && ru.UserRoleId != 1).ToList();
+
+				Console.WriteLine(dbRoomUsers.Count());
+                _context.RoomUsers.RemoveRange(dbRoomUsers);
                 _context.SaveChanges();
                 transaction.Commit();
             }
@@ -95,7 +121,7 @@ class RoomRepository : IRoomRepository
     public List<RoomDto> GetByUser(int userId)
     {
         var rooms = _context.Rooms
-			.Include(room => room.RoomUsers)
+            .Include(room => room.RoomUsers)
             .Where(item => item.RoomUsers.Any(x => x.UserId == userId))
             .Select(item => new RoomDto { Id = item.Id, Name = item.Name, AuthorId = item.AuthorId })
             .ToList();
@@ -106,7 +132,7 @@ class RoomRepository : IRoomRepository
     public List<UserRoomDto> GetUsersByRoom(int roomId)
     {
         var users = _context.RoomUsers
-			.Include(roomUser => roomUser.User)
+            .Include(roomUser => roomUser.User)
             .Where(roomUser => roomUser.RoomId == roomId)
             .Select(roomUser => new UserRoomDto
             {
@@ -115,7 +141,7 @@ class RoomRepository : IRoomRepository
                 Email = roomUser.User.Email,
                 FirstName = roomUser.User.FirstName,
                 LastName = roomUser.User.LastName,
-				UserRoleId = roomUser.UserRoleId
+                UserRoleId = roomUser.UserRoleId
             })
             .ToList();
 

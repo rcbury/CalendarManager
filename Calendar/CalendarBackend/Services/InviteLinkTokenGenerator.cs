@@ -84,9 +84,10 @@ public class InviteLinkTokenGeneratorService
     public string? GetInviteLink(string token, int roomId)
     {
 		//probably move this to env variable
-		var baseUrl = "https://localhost:7132";
+		var baseUrl = "http://localhost:3000";
 
-		var inviteUrl = $"{baseUrl}/Room/{roomId}/acceptInvite?token={token}";
+		//var inviteUrl = $"{baseUrl}/Room/{roomId}/acceptInvite?token={token}";
+		var inviteUrl = $"{baseUrl}/acceptInvite?token={token}&roomId={roomId}";
 
 		return inviteUrl;
     }
