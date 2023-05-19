@@ -88,8 +88,8 @@
     async fetch() {
       const tasks = await this.$axios.$get(`/Task/all/${this.$store.state.activeRoom.id}`);
 
+      console.log(tasks)
       for (var task of tasks) {
-
         const index = this.events.push({
           id: task.id,
           name: task.name,
@@ -98,7 +98,8 @@
           color: this.stringToColour(task.name) + (new Date() > new Date(task.dateEnd) ? '55' : 'ff'),
           end: new Date(task.dateEnd).getTime(),
           files: task.files,
-          timed: true
+          timed: true,
+          users: task.users
         });
 
         const data = await this.$axios.$get(`/Task/${task.id}/files`);
@@ -261,7 +262,7 @@
         let requestBody = null;
         
         if (this.events[eventIndex].users)
-          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null)
+          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null && item.Email && item.UserName)
         
         if (this.events[eventIndex].id) {
           requestBody = { 

@@ -32,7 +32,11 @@ export default {
     },
 
     created() {
-        this.changeUsers.push(this.selectedUsers);
+        if (this.selectUsers) {
+            for (var item of this.selectUsers) {
+                this.changeUsers.push({UserName: item.userName, id: item.id, Email: item.email, FirstName: item.firstName, LastName: item.lastName})
+            }
+        }
     },
 
     methods: {
