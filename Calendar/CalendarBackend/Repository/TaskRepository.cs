@@ -1,15 +1,18 @@
 using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
+using CalendarBackend.Services;
 using System.Xml.Linq;
 
 class TaskRepository : ITaskRepository 
 {
     private readonly CalendarDevContext _context;
+    private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
 
-    public TaskRepository(CalendarDevContext context)
+    public TaskRepository(CalendarDevContext context, StaticFilesLinkCreator staticFilesLinkCreator)
     {
         _context = context;
+        _staticFilesLinkCreator = staticFilesLinkCreator;
     }
 
     public TaskDto Create(TaskDto task, CalendarUser user)
@@ -26,6 +29,18 @@ class TaskRepository : ITaskRepository
                 IgnoreTime = task.IgnoreTime,
                 CreatorId = user.Id
             };
+            task.Users.ToList().ForEach(user =>
+            {
+                dbTask.Users.Add(new CalendarUser
+                {
+                    Id = user.Id,
+                    AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
+                    Email = user.Email ?? "",
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    UserName = user.UserName ?? ""
+                });
+            });
             _context.Tasks.Add(dbTask);
             _context.SaveChanges();
             transaction.Commit();
@@ -61,7 +76,18 @@ class TaskRepository : ITaskRepository
                 Description = item.Description,
                 IgnoreTime = item.IgnoreTime,
                 Name = item.Name,
-                RoomId = item.RoomId
+                RoomId = item.RoomId,
+                Users = item.Users
+                    .Select(user => new UserDto
+                    {
+                        Id = user.Id,
+                        AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
+                        Email = user.Email ?? "",
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = user.UserName ?? ""
+                    })
+                    .ToList()
             })
             .ToList();
         return items;
@@ -80,7 +106,18 @@ class TaskRepository : ITaskRepository
                 Description = item.Description,
                 IgnoreTime = item.IgnoreTime,
                 Name = item.Name,
-                RoomId = item.RoomId
+                RoomId = item.RoomId,
+                Users = item.Users
+                    .Select(user => new UserDto 
+                    { 
+                        Id = user.Id, 
+                        AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id), 
+                        Email = user.Email ?? "", 
+                        FirstName = user.FirstName,
+                        LastName = user.LastName, 
+                        UserName = user.UserName ?? ""
+                    })
+                    .ToList()
             })
             .FirstOrDefault();
         task = task == null ? new TaskDto { Id = 0, Name = "Not found" } : task;
@@ -99,6 +136,19 @@ class TaskRepository : ITaskRepository
                 dbTask.Description = task.Description;
                 dbTask.IgnoreTime = task.IgnoreTime;
                 dbTask.Name = task.Name;
+                dbTask.Users.Clear();
+                task.Users.ToList().ForEach(user => 
+                {
+                    dbTask.Users.Add(new CalendarUser
+                    {
+                        Id = user.Id,
+                        AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
+                        Email = user.Email ?? "",
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = user.UserName ?? ""
+                    });
+                });
                 _context.SaveChanges();
                 transaction.Commit();
             }
