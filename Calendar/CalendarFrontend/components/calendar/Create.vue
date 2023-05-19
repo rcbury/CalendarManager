@@ -36,6 +36,7 @@
               required
           ></v-textarea>
           
+          <CalendarUserList @change="cahngeUsers" :selectUsers="users"/>
           <CalendarFileInput @change="changeFiles" @remove="removeFiles" :files="files"/>
         </v-card-text>
         <v-divider></v-divider>
@@ -71,6 +72,7 @@ export default {
         nameEventsField: "",
         descriptionField: "",
         files: [],
+        users: [],
         eventStart: null,
         eventEnd: null,
         dialog: true
@@ -83,9 +85,14 @@ export default {
       this.eventStart = this.event.start;
       this.eventEnd = this.event.end;
       this.files = this.event.files;
+      this.users = this.event.users;
     },
 
     methods: {
+        cahngeUsers(users) {
+          this.users = users;
+        },
+
         changeTimeStart(timestamp) {
           this.eventStart = timestamp;
         },
@@ -148,6 +155,7 @@ export default {
             event.start = this.eventStart;
             event.end = this.eventEnd;
             event.files = this.files;
+            event.users = this.users;
             
             this.$emit('onCreateEvent', event)
         },

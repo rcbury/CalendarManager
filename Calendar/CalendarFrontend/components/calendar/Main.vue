@@ -260,6 +260,8 @@
       async updateEventApi(eventIndex) {
         let requestBody = null;
         
+        this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null)
+        
         if (this.events[eventIndex].id) {
           requestBody = { 
             id: this.events[eventIndex].id,
@@ -268,7 +270,8 @@
             DateStart: new Date(this.events[eventIndex].start), 
             DateEnd: new Date(this.events[eventIndex].end), 
             RoomId: this.$store.state.activeRoom.id,
-            files: this.events[eventIndex].files
+            files: this.events[eventIndex].files,
+            users: this.events[eventIndex].users
           };
 
           await this.$axios.$put(`/Task`, requestBody);
@@ -278,7 +281,8 @@
             description: this.events[eventIndex].description, 
             DateStart: new Date(this.events[eventIndex].start), 
             DateEnd: new Date(this.events[eventIndex].end), 
-            RoomId: this.$store.state.activeRoom.id 
+            RoomId: this.$store.state.activeRoom.id, 
+            users: this.events[eventIndex].users
           };
 
           var data = await this.$axios.$post(`/Task`, requestBody);
