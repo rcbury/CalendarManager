@@ -2,6 +2,8 @@ using CalendarBackend.Db;
 using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
 using CalendarBackend.Services;
+using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 using System.Xml.Linq;
 
 class TaskRepository : ITaskRepository 
@@ -124,7 +126,7 @@ class TaskRepository : ITaskRepository
     {
         using (var transaction = _context.Database.BeginTransaction())
         {
-            var dbTask = _context.Tasks.Where(item => item.Id == task.Id).FirstOrDefault();
+            var dbTask = _context.Tasks.Where(item => item.Id == task.Id).Include(x => x.Users).FirstOrDefault();
             if (dbTask != null)
             {
                 dbTask.DateStart = task.DateStart;
@@ -132,7 +134,14 @@ class TaskRepository : ITaskRepository
                 dbTask.Description = task.Description;
                 dbTask.IgnoreTime = task.IgnoreTime;
                 dbTask.Name = task.Name;
-                dbTask.Users.Clear();
+                dbTask.Users.ToList().ForEach(user =>
+                {
+                    var dbUser = _context.Users.Where(item => item.Id == user.Id).FirstOrDefault();
+                    if (dbUser != null)
+                    {
+                        dbTask.Users.Remove(dbUser);
+                    }
+                });
                 _context.SaveChanges();
                 task.Users.ToList().ForEach(user => 
                 {
@@ -144,8 +153,26 @@ class TaskRepository : ITaskRepository
                 });
                 _context.SaveChanges();
                 transaction.Commit();
+                return new TaskDto
+                {
+                    Id = dbTask.Id,
+                    Name = dbTask.Name,
+                    DateStart = dbTask.DateStart,
+                    DateEnd = dbTask.DateEnd,
+                    Description = dbTask.Description,
+                    IgnoreTime = dbTask.IgnoreTime,
+                    Users = dbTask.Users.Select(user => new UserDto
+                    {
+                        Id = user.Id,
+                        AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
+                        Email = user.Email ?? "",
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        UserName = user.UserName ?? ""
+                    }).ToList()
+                };
             }
-            return task;
+            throw new Exception("Task to update not found");
         }
     }
 }
