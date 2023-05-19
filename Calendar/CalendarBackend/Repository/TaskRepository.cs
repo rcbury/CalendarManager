@@ -133,6 +133,7 @@ class TaskRepository : ITaskRepository
                 dbTask.IgnoreTime = task.IgnoreTime;
                 dbTask.Name = task.Name;
                 dbTask.Users.Clear();
+                _context.SaveChanges();
                 task.Users.ToList().ForEach(user => 
                 {
                     var dbUser = _context.Users.Where(item => item.Id == user.Id).FirstOrDefault();
