@@ -95,7 +95,7 @@
           name: task.name,
           description: task.description,
           start: new Date(task.dateStart).getTime(),
-          color: this.stringToColour(task.name) + (new Date() > new Date(task.dateStart) ? '55' : 'ff'),
+          color: this.stringToColour(task.name) + (new Date() > new Date(task.dateEnd) ? '55' : 'ff'),
           end: new Date(task.dateEnd).getTime(),
           files: task.files,
           timed: true
@@ -457,5 +457,17 @@
   &:hover::after {
     display: block;
   }
+}
+
+a.nostyle:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+
+a.nostyle:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
 }
 </style>
