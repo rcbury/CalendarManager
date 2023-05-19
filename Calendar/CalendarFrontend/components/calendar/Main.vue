@@ -24,19 +24,27 @@
             <div class="v-event-draggable">
               <component :is="{ render: eventSummary }"></component>
             </div>
+            
+            <v-avatar v-for="item of event.users" :key="item.id" :color=stringToColour(item.userName.at(0)) size="20">
+              <img v-if="item.avatarPath" :src="item.avatarPath"/>
+              <div v-else>
+                {{ item.userName.at(0) }}
+              </div>
+            </v-avatar>
+
             <div
               v-if="timed"
               class="v-event-drag-bottom"
               @mousedown.stop="extendBottom(event)"
             ></div>
           </template>
-
           <template v-slot:day-body="{ date, week }">
             <div
               class="v-current-time"
               :class="{ first: date === week[0].date }"
               :style="{ top: nowY }"
-            ></div>
+            >
+          </div>
           </template>
         </v-calendar>
 
@@ -252,6 +260,7 @@
         }
 
         this.updateEventApi(eventIndex);
+        this.$forceUpdate();
       },
 
       async deleteApiTask(event) {
@@ -262,7 +271,7 @@
         let requestBody = null;
         
         if (this.events[eventIndex].users)
-          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null && item.Email && item.UserName)
+          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null && item.email && item.userName)
         
         if (this.events[eventIndex].id) {
           requestBody = { 

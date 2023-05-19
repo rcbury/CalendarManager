@@ -1,7 +1,7 @@
 <template>
   <v-select
     v-model="changeUsers"
-    item-text="UserName"
+    item-text="userName"
     :items="users"
     label="Select"
     multiple
@@ -27,14 +27,14 @@ export default {
         const data = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/Users`)
         
         for (var item of data) {
-            this.users.push({UserName: item.userName, id: item.id, Email: item.email, FirstName: item.firstName, LastName: item.lastName})
+            this.users.push({userName: item.userName, id: item.id, email: item.email, firstName: item.firstName, lastName: item.lastName, avatarPath: item.path})
         }
     },
 
     created() {
         if (this.selectUsers) {
             for (var item of this.selectUsers) {
-                this.changeUsers.push({UserName: item.userName, id: item.id, Email: item.email, FirstName: item.firstName, LastName: item.lastName})
+                this.changeUsers.push({userName: item.userName, id: item.id, email: item.email, firstName: item.firstName, lastName: item.lastName, avatarPath: item.path})
             }
         }
     },

@@ -2,7 +2,7 @@
   <v-navigation-drawer v-model="drawer" permanent width="15vw" app>
     <nuxt-link to="/profile" :custom="true">
       <div v-if="$auth.loggedIn" class="application-navigation-info">
-        <v-avatar :color=stringToColor(this.$auth.user?.userName) size="45">
+        <v-avatar :color=stringToColor(this.$auth.user?.userName.at(0)) size="45">
           <img v-if="$auth.user.avatarPath" :src="$auth.user.avatarPath" />
           <div v-else>
             {{ this.$auth.user.userName.at(0) }}
