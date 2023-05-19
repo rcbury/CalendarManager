@@ -36,7 +36,7 @@
               required
           ></v-textarea>
           
-          <CalendarUserList @change="cahngeUsers" :selectUsers="users"/>
+          <CalendarUserList @change="changeUsers" :selectUsers="users"/>
           <CalendarFileInput @change="changeFiles" @remove="removeFiles" :files="files"/>
         </v-card-text>
         <v-divider></v-divider>
@@ -89,7 +89,7 @@ export default {
     },
 
     methods: {
-        cahngeUsers(users) {
+        changeUsers(users) {
           this.users = users;
         },
 
