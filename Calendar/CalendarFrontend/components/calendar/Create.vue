@@ -3,6 +3,7 @@
     <v-dialog
       width="500"
       v-model="dialog"
+      @click:outside="createEvent"
     >
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
