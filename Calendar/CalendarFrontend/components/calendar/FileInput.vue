@@ -3,7 +3,6 @@
         <v-file-input
             :value="files"
             small-chips
-            show-size
             multiple
             clearable
             label="Select files"

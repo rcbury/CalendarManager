@@ -95,7 +95,7 @@
           name: task.name,
           description: task.description,
           start: new Date(task.dateStart).getTime(),
-          color: this.stringToColour(task.name),
+          color: this.stringToColour(task.name) + (new Date() > new Date(task.dateEnd) ? '55' : 'ff'),
           end: new Date(task.dateEnd).getTime(),
           files: task.files,
           timed: true
@@ -260,6 +260,9 @@
       async updateEventApi(eventIndex) {
         let requestBody = null;
         
+        if (this.events[eventIndex].users)
+          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null)
+        
         if (this.events[eventIndex].id) {
           requestBody = { 
             id: this.events[eventIndex].id,
@@ -268,7 +271,8 @@
             DateStart: new Date(this.events[eventIndex].start), 
             DateEnd: new Date(this.events[eventIndex].end), 
             RoomId: this.$store.state.activeRoom.id,
-            files: this.events[eventIndex].files
+            files: this.events[eventIndex].files,
+            users: this.events[eventIndex].users
           };
 
           await this.$axios.$put(`/Task`, requestBody);
@@ -278,7 +282,8 @@
             description: this.events[eventIndex].description, 
             DateStart: new Date(this.events[eventIndex].start), 
             DateEnd: new Date(this.events[eventIndex].end), 
-            RoomId: this.$store.state.activeRoom.id 
+            RoomId: this.$store.state.activeRoom.id, 
+            users: this.events[eventIndex].users
           };
 
           var data = await this.$axios.$post(`/Task`, requestBody);
@@ -452,5 +457,17 @@
   &:hover::after {
     display: block;
   }
+}
+
+a.nostyle:link {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
+}
+
+a.nostyle:visited {
+    text-decoration: inherit;
+    color: inherit;
+    cursor: auto;
 }
 </style>
