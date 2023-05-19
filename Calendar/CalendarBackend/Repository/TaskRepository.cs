@@ -31,15 +31,11 @@ class TaskRepository : ITaskRepository
             };
             task.Users.ToList().ForEach(user =>
             {
-                dbTask.Users.Add(new CalendarUser
+                var dbUser = _context.Users.Where(item => item.Id == user.Id).FirstOrDefault();
+                if (dbUser != null)
                 {
-                    Id = user.Id,
-                    AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
-                    Email = user.Email ?? "",
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    UserName = user.UserName ?? ""
-                });
+                    dbTask.Users.Add(dbUser);
+                }
             });
             _context.Tasks.Add(dbTask);
             _context.SaveChanges();
@@ -139,15 +135,11 @@ class TaskRepository : ITaskRepository
                 dbTask.Users.Clear();
                 task.Users.ToList().ForEach(user => 
                 {
-                    dbTask.Users.Add(new CalendarUser
+                    var dbUser = _context.Users.Where(item => item.Id == user.Id).FirstOrDefault();
+                    if (dbUser != null) 
                     {
-                        Id = user.Id,
-                        AvatarPath = _staticFilesLinkCreator.GetAvatarLink(user.Id),
-                        Email = user.Email ?? "",
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        UserName = user.UserName ?? ""
-                    });
+                        dbTask.Users.Add(dbUser);
+                    }
                 });
                 _context.SaveChanges();
                 transaction.Commit();
