@@ -27,7 +27,7 @@ export default {
         const data = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/Users`)
         
         for (var item of data) {
-            this.users.push({UserName: item.userName, id: item.id, Email: item.email})
+            this.users.push({UserName: item.userName, id: item.id, Email: item.email, FirstName: item.firstName, LastName: item.lastName})
         }
     },
 
