@@ -95,7 +95,7 @@
           name: task.name,
           description: task.description,
           start: new Date(task.dateStart).getTime(),
-          color: this.stringToColour(task.name),
+          color: this.stringToColour(task.name) + (new Date() > new Date(task.dateStart) ? '55' : 'ff'),
           end: new Date(task.dateEnd).getTime(),
           files: task.files,
           timed: true
@@ -260,7 +260,8 @@
       async updateEventApi(eventIndex) {
         let requestBody = null;
         
-        this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null)
+        if (this.events[eventIndex].users)
+          this.events[eventIndex].users = this.events[eventIndex].users.filter(item => item != null)
         
         if (this.events[eventIndex].id) {
           requestBody = { 
