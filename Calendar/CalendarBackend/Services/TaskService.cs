@@ -40,6 +40,17 @@ public class TaskService
         _fileRepository.DeleteById(fileId);
     }
 
+    public async void DeleteTaskFiles(int roomId)
+    {
+        var fileDtos = _fileRepository.GetAll(roomId);
+
+        foreach (var fileDto in fileDtos) 
+        {
+            _fileStorageService.DeleteFileFromDisk(fileDto.Path);
+            _fileRepository.DeleteById(fileDto.Id);
+        }
+    }
+
     public async void DeleteTask(int id)
     {
         var taskDto = _taskRepository.GetById(id);

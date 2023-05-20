@@ -127,5 +127,21 @@ namespace CalendarBackend.Controllers
             
             return new OkResult();
         }
+
+        [HttpDelete("{id}/files")]
+        // [Authorize("IsRoomAdmin")]
+        public async Task<IActionResult> DeleteTaskFiles(int id)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            _taskService.DeleteTaskFiles(id);
+
+            return new OkResult();
+        }
     }
 }
