@@ -52,7 +52,7 @@ class FileRepository : IFileRepository
     {
         var taskFiles = _context.FileTasks
             .Where(item => item.TaskId == taskId)
-            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Link = _staticFilesLinkCreator.GetFileLink(taskId, item.Name) })
+            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Path = item.FilePath, Link = _staticFilesLinkCreator.GetFileLink(taskId, item.Name) })
             .ToList();
         return taskFiles;
     }
@@ -61,7 +61,7 @@ class FileRepository : IFileRepository
     {
         var fileDto = _context.FileTasks
             .Where(item => item.Id == fileId)
-            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Link = _staticFilesLinkCreator.GetFileLink(item.TaskId, item.Name) })
+            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Path = item.FilePath, Link = _staticFilesLinkCreator.GetFileLink(item.TaskId, item.Name) })
             .FirstOrDefault();
         
         if (fileDto == null) 
