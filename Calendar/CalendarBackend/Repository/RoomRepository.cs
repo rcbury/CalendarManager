@@ -84,18 +84,20 @@ class RoomRepository : IRoomRepository
 
     public void DeleteUser(int roomId, int userId)
     {
-				Console.WriteLine("sosu");
         using (var transaction = _context.Database.BeginTransaction())
         {
-				Console.WriteLine("sosu");
             var dbRoom = _context.Rooms.Where(room => room.Id == roomId).FirstOrDefault();
             if (dbRoom != null)
             {
-				Console.WriteLine("sosu3");
                 var dbRoomUsers = _context.RoomUsers
 					.Where(ru => ru.RoomId == dbRoom.Id && ru.UserId == userId && ru.UserRoleId != 1).ToList();
 
-				Console.WriteLine(dbRoomUsers.Count());
+
+                var dbTasks = _context.Tasks.Where(item => item.Id == roomId).Include(x => x.Users);
+                foreach (var dbTask in dbTasks) 
+                {
+                    dbTask.Users.Remove(dbRoomUsers.First().User);
+                }
                 _context.RoomUsers.RemoveRange(dbRoomUsers);
                 _context.SaveChanges();
                 transaction.Commit();
