@@ -6,7 +6,7 @@
       @click:outside="createEvent"
     >
       <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
+        <v-card-title class="text-h5">
             {{ event.id == null ? "Create event" : "Edit event" }}
         </v-card-title>
 
@@ -39,6 +39,15 @@
           
           <CalendarUserList @change="changeUsers" :selectUsers="users"/>
           <CalendarFileInput @change="changeFiles" @remove="removeFiles" :files="files"/>
+          <v-list>
+            <v-subheader>Download files</v-subheader>
+            <v-list-item v-for="file in event.files">
+              <v-list-item-content>
+                <v-list-item-title><a :href="file.link"> {{ file.name }} </a></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+          </v-list>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -56,7 +65,7 @@
             text
             @click="closeDialog()"
           >
-            {{ event.id == null ? "Close" : "Delete" }}
+            {{ event.id == null ? "Cancel" : "Delete" }}
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -119,7 +128,7 @@ export default {
 
         async removeFiles(fileIndex) {
           if (this.files[fileIndex].id) {
-            await this.$axios.$delete(`/Task/${this.files[fileIndex].id}/files`);          
+            await this.$axios.$delete(`/Room/${this.$store.state.activeRoom.id}/tasks/${this.event.id}/files/${this.files[fileIndex].id}`);          
             this.files.splice(fileIndex, 1)
           }
         },
@@ -143,7 +152,7 @@ export default {
               var bodyFormData = new FormData();
 
               bodyFormData.append("file", newFiles[item])
-              var data = await this.$axios.$post(`/Task/${this.taskId}/files`, bodyFormData)
+              var data = await this.$axios.$post(`/Room/${this.$store.state.activeRoom.id}/tasks/${this.taskId}/files`, bodyFormData)
               this.files[item] = data;
           }
         },

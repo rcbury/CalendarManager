@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CalendarBackend.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
     public class TaskController : Controller
     {
         private readonly ITaskRepository _taskRepository;

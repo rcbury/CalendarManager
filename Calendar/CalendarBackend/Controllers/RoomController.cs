@@ -14,15 +14,24 @@ namespace CalendarBackend.Controllers
         private readonly IRoomRepository _roomRepository;
         private readonly UserService _userService;
         private readonly InviteLinkTokenGeneratorService _inviteLinkTokenGeneratorService;
+        private readonly ITaskRepository _taskRepository;
+		private readonly TaskService _taskService;
+		private readonly IFileRepository _fileRepository;
 
         public RoomController(
-                IRoomRepository roomRepository,
-                UserService userService,
-                InviteLinkTokenGeneratorService inviteLinkTokenGeneratorService)
+				IRoomRepository roomRepository, 
+				UserService userService, 
+				InviteLinkTokenGeneratorService inviteLinkTokenGeneratorService, 
+				ITaskRepository taskRepository,
+				TaskService taskService,
+				IFileRepository fileRepository)
         {
             _roomRepository = roomRepository;
             _userService = userService;
             _inviteLinkTokenGeneratorService = inviteLinkTokenGeneratorService;
+            _taskRepository = taskRepository;
+			_taskService = taskService;
+			_fileRepository = fileRepository;
         }
 
         [HttpGet]
@@ -135,6 +144,128 @@ namespace CalendarBackend.Controllers
         {
             _roomRepository.DeleteById(id);
             return Ok();
+        }
+
+		// TASKS 
+
+        [HttpGet("{id}/tasks")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> GetAllTasks(int id)
+        {
+            var tasks = _taskRepository.GetAll(id);
+            return Ok(tasks);
+        }
+
+        [HttpGet("{id}/tasks/{taskId}")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> GetTaskById(int taskId)
+        {
+            var task = _taskRepository.GetById(taskId);
+            return Ok(task);
+        }
+
+        [HttpPost("{id}/tasks")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> CreateTask([FromBody] TaskDto task)
+        {
+            var user = await _userService.GetUserByClaim(this.User);
+            var res = _taskRepository.Create(task, user);
+            return Ok(res);
+        }
+
+        [HttpPut("{id}/tasks/{taskId}")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> UpdateTask([FromBody] TaskDto task, [FromRoute] int taskId, [FromRoute] int id)
+        {
+			task.Id = taskId;
+            var res = _taskRepository.Update(task);
+            return Ok(res);
+        }
+
+        [HttpDelete("{id}/tasks/{taskId}")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> DeleteTask(int taskId)
+        {
+            _taskService.DeleteTask(taskId);
+            return Ok();
+        }
+
+        [HttpPost("{id}/tasks/{taskId}/files")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, int taskId)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            var fileDto = await _taskService.UploadFile(taskId, file);
+
+            if (fileDto != null)
+            {
+                return Ok(fileDto);
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpGet("{id}/tasks/{taskId}/files")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> GetTaskFiles(int taskId)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            var fileNames = _fileRepository.GetAll(taskId);
+
+            if (fileNames != null)
+            {
+                return Ok(fileNames);
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete("{id}/tasks/{taskId}/files/{fileId}")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> DeleteFile(int fileId)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            _taskService.DeleteFile(fileId);
+
+            return new OkResult();
+        }
+
+        [HttpDelete("{id}/tasks/{taskId}/files")]
+        [Authorize("IsRoomMember")]
+        public async Task<IActionResult> DeleteTaskFiles(int taskId)
+        {
+            var authorizedUser = this.User;
+
+            var userIdClaim = authorizedUser.Claims.Where(x => x.Type == "userId").FirstOrDefault();
+
+            if (userIdClaim == null)
+                return new BadRequestResult();
+
+            _taskService.DeleteTaskFiles(taskId);
+
+            return new OkResult();
         }
 
 

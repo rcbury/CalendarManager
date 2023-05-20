@@ -94,7 +94,7 @@
     },
     
     async fetch() {
-      const tasks = await this.$axios.$get(`/Task/all/${this.$store.state.activeRoom.id}`);
+      const tasks = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/tasks`);
 
       console.log(tasks)
       for (var task of tasks) {
@@ -110,7 +110,7 @@
           users: task.users
         });
 
-        const data = await this.$axios.$get(`/Task/${task.id}/files`);
+        const data = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/tasks/${task.id}/files`);
         this.events[index - 1].files = data;
       }
     },
@@ -264,7 +264,7 @@
       },
 
       async deleteApiTask(event) {
-        await this.$axios.$delete(`/Task/${event.id}`);
+        await this.$axios.$delete(`/Room/${this.$store.state.activeRoom.id}/tasks/${event.id}`);
       },  
 
       async updateEventApi(eventIndex) {
@@ -285,7 +285,7 @@
             users: this.events[eventIndex].users
           };
 
-          await this.$axios.$put(`/Task`, requestBody);
+          await this.$axios.$put(`/Room/${this.$store.state.activeRoom.id}/tasks/${this.events[eventIndex].id}`, requestBody);
         } else {
           requestBody = { 
             name: this.events[eventIndex].name, 
@@ -296,7 +296,7 @@
             users: this.events[eventIndex].users
           };
 
-          var data = await this.$axios.$post(`/Task`, requestBody);
+          var data = await this.$axios.$post(`/Room/${this.$store.state.activeRoom.id}/tasks`, requestBody);
           this.events[eventIndex - 1].id = data.id;
 
           if (this.events[eventIndex - 1].files && this.events[eventIndex - 1].files.length > 0) {
@@ -305,7 +305,7 @@
 
               bodyFormData.append("file", this.events[eventIndex - 1].files[item])
               
-              var data = await this.$axios.$post(`/Task/${this.events[eventIndex - 1].id}/files`, bodyFormData)
+              var data = await this.$axios.$post(`/Room/${this.$store.state.activeRoom.id}/tasks/${this.events[eventIndex - 1].id}/files`, bodyFormData)
               this.events[eventIndex - 1].files[item] = data;
             }
           }

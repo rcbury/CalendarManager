@@ -51,11 +51,15 @@ class TaskRepository : ITaskRepository
     {
         using (var transaction = _context.Database.BeginTransaction())
         {
-            var dbTask = _context.Tasks.Where(task => task.Id == id).FirstOrDefault();
+            var dbTask = _context.Tasks.Include(task => task.Users).Where(task => task.Id == id).FirstOrDefault();
             if (dbTask != null)
             {
+				dbTask.Users.Clear();
+                _context.SaveChanges();
+
                 _context.Tasks.Remove(dbTask);
                 _context.SaveChanges();
+
                 transaction.Commit();
             }
         }

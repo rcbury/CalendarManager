@@ -70,8 +70,21 @@ class RoomRepository : IRoomRepository
             {
                 var dbRoomUsers = _context.RoomUsers.Where(ru => ru.RoomId == dbRoom.Id);
                 _context.RoomUsers.RemoveRange(dbRoomUsers);
+                _context.SaveChanges();
 
-                var dbRoomTasks = _context.Tasks.Where(task => task.RoomId == dbRoom.Id);
+				var dbRoomFileTasks = _context.FileTasks
+					.Include(taskFile => taskFile.Task)
+					.Where(taskFile => taskFile.Task.RoomId == dbRoom.Id);
+
+                _context.FileTasks.RemoveRange(dbRoomFileTasks);
+                _context.SaveChanges();
+
+                var dbRoomTasks = _context.Tasks.Include(task => task.Users).Where(task => task.RoomId == dbRoom.Id);
+				foreach (var dbRoomTask in dbRoomTasks)
+				{
+					dbRoomTask.Users.Clear();
+				}
+                _context.SaveChanges();
                 _context.Tasks.RemoveRange(dbRoomTasks);
 
 
