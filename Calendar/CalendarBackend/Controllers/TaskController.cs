@@ -114,7 +114,7 @@ namespace CalendarBackend.Controllers
 
         [HttpDelete("{id}/files")]
         // [Authorize("IsRoomAdmin")]
-        public async Task<IActionResult> DeleteFile(int id)
+        public async Task<IActionResult> DeleteFile(int fileId)
         {
             var authorizedUser = this.User;
 
@@ -123,7 +123,7 @@ namespace CalendarBackend.Controllers
             if (userIdClaim == null)
                 return new BadRequestResult();
 
-            _taskService.DeleteFile(id);
+            _taskService.DeleteFile(fileId);
             
             return new OkResult();
         }
