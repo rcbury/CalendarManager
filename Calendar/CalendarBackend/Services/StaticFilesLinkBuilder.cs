@@ -24,4 +24,15 @@ public class StaticFilesLinkCreator
 
 		return serverPath;
     }
+
+    public string? GetFileLink(int taskId, string fileName)
+    {
+
+        //probably move this to env variable
+        var baseUrl = "https://localhost:7132";
+
+        var serverPath = $"{baseUrl}/Static/TaskFiles/{taskId}/{fileName}";
+
+        return serverPath;
+    }
 }

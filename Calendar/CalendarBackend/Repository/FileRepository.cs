@@ -8,10 +8,12 @@ using System.Xml.Linq;
 class FileRepository : IFileRepository 
 {
     private readonly CalendarDevContext _context;
+    private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
 
-    public FileRepository(CalendarDevContext context)
+    public FileRepository(CalendarDevContext context, StaticFilesLinkCreator staticFilesLinkCreator)
     {
         _context = context;
+        _staticFilesLinkCreator = staticFilesLinkCreator;
     }
 
     public FileDto Create(int taskId, FileDto fileDto)
@@ -50,7 +52,7 @@ class FileRepository : IFileRepository
     {
         var taskFiles = _context.FileTasks
             .Where(item => item.TaskId == taskId)
-            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Path = item.FilePath })
+            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Link = _staticFilesLinkCreator.GetFileLink(taskId, item.Name) })
             .ToList();
         return taskFiles;
     }
@@ -59,7 +61,7 @@ class FileRepository : IFileRepository
     {
         var fileDto = _context.FileTasks
             .Where(item => item.Id == fileId)
-            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Path = item.FilePath})
+            .Select(item => new FileDto { Id = item.Id, Name = item.Name, Link = _staticFilesLinkCreator.GetFileLink(item.TaskId, item.Name) })
             .FirstOrDefault();
         
         if (fileDto == null) 

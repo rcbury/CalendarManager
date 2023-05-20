@@ -6,6 +6,7 @@ namespace CalendarBackend.Dto
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public string Path { get; set; } = null!;
+        public string? Path { get; set; } = null!;
+        public string? Link { get; set; } = null!;
     }
 }
