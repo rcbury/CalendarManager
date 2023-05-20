@@ -44,6 +44,26 @@
         </div>
         <v-text-field v-model="loginField" :rules="loginRules" label="Login" disabled></v-text-field>
         <v-text-field v-model="emailField" :rules="emailRules" disabled label="Email" required></v-text-field>
+        <v-col class="shrink">
+          <v-btn
+            small
+            @click="showPasswordChangeForm = !showPasswordChangeForm"
+          >
+            Change password
+          </v-btn>
+
+          <v-expand-transition>
+            <div
+              v-show="showPasswordChangeForm"
+            >
+            <v-text-field v-model="currentPassword" :rules="baseRules" :counter="32" label="Current password" required />
+            <v-text-field v-model="newPassword" :rules="baseRules" :counter="32" label="New password" required />
+            <v-btn class="mt-4" block @click="changePassword">
+              Change password
+            </v-btn>
+          </div>
+          </v-expand-transition>
+        </v-col>
         <div class="d-flex flex-column">
           <v-btn color="info" class="mt-4" block @click="validate">
             Save
@@ -67,6 +87,9 @@ export default {
       avatarDialogOpen: false,
       avatarToUpload: undefined,
       avatarPath: this.$auth.user.avatarPath,
+      currentPassword: "",
+      newPassword: "",
+      showPasswordChangeForm: false,
     }
   },
 
@@ -83,6 +106,21 @@ export default {
       await this.$auth.fetchUser()
     },
 
+    async changePassword(changePassword) {
+      let requestBody = {
+        currentPassword: this.currentPassword,
+        newPassword: this.newPassword,
+      }
+
+      try{
+        let result = await this.$axios.put("/User/self/password", requestBody)
+        this.showPasswordChangeForm = false
+      }
+      catch {
+        console.log('error')
+      }
+    },
+
     toggleAvatarDialog() {
       this.avatarDialogOpen = !this.avatarDialogOpen
     },
@@ -92,7 +130,7 @@ export default {
 
       bodyFormData.append("profilePicture", this.avatarToUpload)
 
-      this.avatarDialogOpen = this.$axios.$put('/User/self/avatar', bodyFormData)
+      this.avatarDialogOpen = await this.$axios.$put('/User/self/avatar', bodyFormData)
 
       this.toggleAvatarDialog()
 
