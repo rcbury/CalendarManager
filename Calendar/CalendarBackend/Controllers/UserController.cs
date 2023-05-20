@@ -50,7 +50,6 @@ namespace CalendarBackend.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                //Большая малая буква, цифра, символ
                 var charsBig = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 var charsSmall = "abcdefghijklmnopqrstuvwxyz";
                 var numbers = "0123456789";
