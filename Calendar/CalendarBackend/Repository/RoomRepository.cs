@@ -93,7 +93,7 @@ class RoomRepository : IRoomRepository
 					.Where(ru => ru.RoomId == dbRoom.Id && ru.UserId == userId && ru.UserRoleId != 1).ToList();
 
 
-                var dbTasks = _context.Tasks.Where(item => item.Id == roomId).Include(x => x.Users);
+                var dbTasks = _context.Tasks.Where(item => item.RoomId == roomId).Include(x => x.Users).ToList();
                 foreach (var dbTask in dbTasks) 
                 {
                     dbTask.Users.Remove(dbRoomUsers.First().User);
