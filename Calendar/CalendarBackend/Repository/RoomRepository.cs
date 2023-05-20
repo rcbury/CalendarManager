@@ -3,14 +3,17 @@ using CalendarBackend.Dto;
 using CalendarBackend.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.StaticFiles;
+using CalendarBackend.Services;
 
 class RoomRepository : IRoomRepository
 {
     private readonly CalendarDevContext _context;
+    private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
 
-    public RoomRepository(CalendarDevContext context)
+    public RoomRepository(CalendarDevContext context, StaticFilesLinkCreator staticFilesLinkCreator)
     {
         _context = context;
+        _staticFilesLinkCreator = staticFilesLinkCreator;
     }
 
     public void AddUser(int roomId, int userId)
@@ -141,7 +144,8 @@ class RoomRepository : IRoomRepository
                 Email = roomUser.User.Email,
                 FirstName = roomUser.User.FirstName,
                 LastName = roomUser.User.LastName,
-                UserRoleId = roomUser.UserRoleId
+                UserRoleId = roomUser.UserRoleId,
+                AvatarPath = _staticFilesLinkCreator.GetAvatarLink(roomUser.User.Id)
             })
             .ToList();
 
