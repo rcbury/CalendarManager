@@ -47,7 +47,6 @@ export default {
     async validate() {
       const valid = await this.$refs.form.validate()
       if (valid) {
-        //this.$store.commit('authorization/set', true);
         try {
           const requestBody = {
             Email: this.loginField,

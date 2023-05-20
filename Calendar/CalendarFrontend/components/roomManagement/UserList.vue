@@ -5,7 +5,12 @@
       <v-list-item v-for="(user, i) in userList" :key="user.id">
         <v-list-item-content>
           <div class="d-flex justify-space-between align-center">
-
+            <v-avatar class="mr-4" :color=stringToColor(user.userName.at(0)) size="45">
+              <img v-if="user.avatarPath" :src="user.avatarPath" />
+              <div v-else>
+                {{ user.userName.at(0) }}
+              </div>
+            </v-avatar>
             <v-list-item-title
               v-text="`${user.userName} ${$auth.user.id === user.id ? '(you)' : ''}`"></v-list-item-title>
             <v-checkbox :min-width="100" :label="'is admin'"
@@ -33,9 +38,25 @@ export default {
   },
 
   methods: {
-    kickUser() {
+    stringToColor(str) {
+      if (!str) {
+        return "#FFFFFF"
+      }
 
+      var hash = 0;
+      for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      }
+
+      var colour = '#';
+      for (var i = 0; i < 3; i++) {
+        var value = (hash >> (i * 8)) & 0xFF;
+        colour += ('00' + value.toString(16)).substr(-2);
+      }
+
+      return colour;
     },
+
     isRoomAdmin() {
       return this.$store.state.activeRoom.authorizedUserRoleId === 1
     },

@@ -14,18 +14,18 @@ namespace CalendarBackend.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly UserService _userService;
         private readonly UserManager<CalendarUser> _userManager;
-		private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
+        private readonly StaticFilesLinkCreator _staticFilesLinkCreator;
 
         public UserController(
             IAuthenticationService authenticationService,
             UserManager<CalendarUser> userManager,
             UserService userService,
-			StaticFilesLinkCreator staticFilesLinkCreator)
+            StaticFilesLinkCreator staticFilesLinkCreator)
         {
             _authenticationService = authenticationService;
             _userManager = userManager;
             _userService = userService;
-			_staticFilesLinkCreator = staticFilesLinkCreator;
+            _staticFilesLinkCreator = staticFilesLinkCreator;
         }
 
         [HttpPost(Name = "Register a new user")]
@@ -50,7 +50,6 @@ namespace CalendarBackend.Controllers
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-                //Большая малая буква, цифра, символ
                 var charsBig = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 var charsSmall = "abcdefghijklmnopqrstuvwxyz";
                 var numbers = "0123456789";
@@ -59,7 +58,7 @@ namespace CalendarBackend.Controllers
                 var random = new Random();
 
                 var newPassword = "";
-                
+
                 for (int i = 0; i < 3; i++)
                 {
                     var count = random.Next(0, charsBig.Length);
@@ -87,11 +86,14 @@ namespace CalendarBackend.Controllers
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var res = await _userManager.ResetPasswordAsync(user, token, newPassword);
 
-                return Ok(newPassword);
+                return new OkObjectResult(new PasswordChangeResponse
+                {
+                    NewPassword = newPassword
+                });
             }
 
             return BadRequest();
-            
+
         }
 
         [HttpPut]
@@ -101,7 +103,7 @@ namespace CalendarBackend.Controllers
         {
             var authorizedUserClaim = this.User;
 
-			var user = await _userService.GetUserByClaim(authorizedUserClaim);
+            var user = await _userService.GetUserByClaim(authorizedUserClaim);
 
             var result = await _userService.UpdateUser(userData, user.Id);
 
@@ -135,6 +137,27 @@ namespace CalendarBackend.Controllers
 
         }
 
+        [HttpPut("/User/self/password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassowrd([FromBody] ChangePasswordDto changePasswordDto)
+        {
+            var authorizedUser = this.User;
+
+            var user = await _userService.GetUserByClaim(authorizedUser);
+
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return new OkResult();
+            }
+            else
+            {
+                return new BadRequestObjectResult(result.Errors);
+            }
+
+        }
+
         [HttpGet]
         [Route("/User/{userId}")]
         public async Task<IActionResult> Get([FromRoute] int userId)
@@ -161,20 +184,20 @@ namespace CalendarBackend.Controllers
         {
             var authorizedUserClaim = this.User;
 
-			var user = await _userService.GetUserByClaim(authorizedUserClaim);
+            var user = await _userService.GetUserByClaim(authorizedUserClaim);
 
             if (user == null)
                 return new BadRequestResult();
 
             var userResponseDTO = new UserDto();
 
-			userResponseDTO.Id = user.Id;
+            userResponseDTO.Id = user.Id;
             userResponseDTO.LastName = user.LastName;
             userResponseDTO.FirstName = user.FirstName;
             userResponseDTO.UserName = user.UserName;
             userResponseDTO.Email = user.Email;
 
-			var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(user.Id.ToString()));
+            var result = _staticFilesLinkCreator.GetAvatarLink(int.Parse(user.Id.ToString()));
 
             userResponseDTO.AvatarPath = result;
 
