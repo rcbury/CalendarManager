@@ -94,9 +94,9 @@
     },
     
     async fetch() {
+      this.events = [];
       const tasks = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/tasks`);
 
-      console.log(tasks)
       for (var task of tasks) {
         const index = this.events.push({
           id: task.id,
@@ -250,7 +250,7 @@
         }
       },
 
-      onCreateEvent(event) {
+      async onCreateEvent(event) {
         this.closeDialog();
         
         var eventIndex = event.id != null ? this.events.findIndex(item => item.id == event.id) : this.events.length;
@@ -259,8 +259,8 @@
           this.events[eventIndex] = { id: null, ...event };
         }
 
-        this.updateEventApi(eventIndex);
-        this.$forceUpdate();
+        await this.updateEventApi(eventIndex);
+        this.$fetch();
       },
 
       async deleteApiTask(event) {
