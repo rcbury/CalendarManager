@@ -4,6 +4,7 @@ using CalendarBackend.Repository.Interfaces;
 using CalendarBackend.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 class TaskRepository : ITaskRepository 
@@ -89,6 +90,16 @@ class TaskRepository : ITaskRepository
                         LastName = user.LastName,
                         UserName = user.UserName ?? ""
                     })
+                    .ToList(),
+                Files = _context.FileTasks
+                    .Where(ft => ft.TaskId == item.Id)
+                    .Select(ft => new FileDto 
+                    { 
+                        Id = ft.Id, 
+                        Name = ft.Name, 
+                        Path = ft.FilePath, 
+                        Link = _staticFilesLinkCreator.GetFileLink(item.Id, ft.Name) 
+                    })
                     .ToList()
             })
             .ToList();
@@ -118,6 +129,16 @@ class TaskRepository : ITaskRepository
                         FirstName = user.FirstName,
                         LastName = user.LastName, 
                         UserName = user.UserName ?? ""
+                    })
+                    .ToList(),
+                Files = _context.FileTasks
+                    .Where(ft => ft.TaskId == item.Id)
+                    .Select(ft => new FileDto
+                    {
+                        Id = ft.Id,
+                        Name = ft.Name,
+                        Path = ft.FilePath,
+                        Link = _staticFilesLinkCreator.GetFileLink(item.Id, ft.Name)
                     })
                     .ToList()
             })

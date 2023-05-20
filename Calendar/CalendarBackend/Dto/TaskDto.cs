@@ -13,5 +13,6 @@ namespace CalendarBackend.Dto
         public bool IgnoreTime { get; set; }
         public int? CreatorId { get; set; }
         public List<UserDto> Users { get; set; } = new List<UserDto>();
+        public List<FileDto> Files { get; set; } = new List<FileDto>();
     }
 }
