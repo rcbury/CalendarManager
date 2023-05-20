@@ -110,8 +110,8 @@
           users: task.users
         });
 
-        const data = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/tasks/${task.id}/files`);
-        this.events[index - 1].files = data;
+        //const data = await this.$axios.$get(`/Room/${this.$store.state.activeRoom.id}/tasks/${task.id}/files`);
+        //this.events[index - 1].files = data;
       }
     },
 
