@@ -15,13 +15,13 @@
             @save="changeTimeStart"
             :time="convertTime(event.start)"
             :date="new Date(event.start).toISOString().substr(0, 10)"
-            label="Time start task"
+            label="Start time"
           />
           <CalendarDateTimePicker 
             @save="changeTimeEnd"
             :time="convertTime(event.end)"
             :date="new Date(event.end).toISOString().substr(0, 10)"
-            label="Time start task"
+            label="End time"
           />
           <v-text-field
               v-model="nameEventsField"
@@ -104,6 +104,7 @@ export default {
         },
 
         changeTimeStart(timestamp) {
+          console.log("timestamp", timestamp)
           this.eventStart = timestamp;
         },
 

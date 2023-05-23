@@ -51,8 +51,10 @@
     },
 
     methods: {
-        save() {
-            this.$emit('save', new Date(`${this.date} ${this.time}`))
+      save() {
+          console.log(typeof(this.time))
+          console.log(this.date)
+          this.$emit('save', new Date(`${this.date}T${this.time}`))
         }
     },
 

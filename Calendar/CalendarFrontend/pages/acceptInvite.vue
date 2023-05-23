@@ -15,6 +15,10 @@ export default {
         try
         {
             const result = await this.$axios.$get(`/Room/${roomId}/acceptInvite?token=${token}`)
+            this.$router.push({ path: '/'})
+            //window.location = "http://localhost:3000/"
+            //window.history.pushState({},'',"")
+            //window.location.reload()
         }
         catch{
 

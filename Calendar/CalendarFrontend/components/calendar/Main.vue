@@ -8,7 +8,6 @@
           ref="calendar"
           v-model="value"
           color="primary"
-          height="100vh"
           :type="type"
           :events="events"
           :event-color="getEventColor"
